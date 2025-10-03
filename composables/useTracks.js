@@ -1,0 +1,86 @@
+export const useTracks = () => {
+  const tracks = [
+    {
+      id: 1,
+      title: "Guilt",
+      subtitle: "",
+      artist: "Nero",
+      album: "Welcome Reality",
+      duration: "4:44",
+    },
+    {
+      id: 2,
+      title: "Elektro",
+      subtitle: "",
+      artist: "Dynoro, Outwork, Mr. Gee",
+      album: "Elektro",
+      duration: "2:22",
+    },
+    {
+      id: 3,
+      title: "I'm Fire",
+      subtitle: "",
+      artist: "Ali Bakgor",
+      album: "I'm Fire",
+      duration: "2:22",
+    },
+    {
+      id: 4,
+      title: "Non Stop",
+      subtitle: "(Remix)",
+      artist: "Стоункат, Psychopath",
+      album: "Non Stop",
+      duration: "4:12",
+    },
+    {
+      id: 5,
+      title: "Run Run",
+      subtitle: "(feat. AR/CO)",
+      artist: "Jaded, Will Clarke, AR/CO",
+      album: "Run Run",
+      duration: "2:54",
+    },
+    {
+      id: 6,
+      title: "Eyes on Fire",
+      subtitle: "(Zeds Dead Remix)",
+      artist: "Blue Foundation, Zeds Dead",
+      album: "Eyes on Fire",
+      duration: "5:20",
+    },
+    {
+      id: 7,
+      title: "Mucho Bien",
+      subtitle: "(Hi Profile Remix)",
+      artist: "HYBIT, Mr. Black, Offer Nissim, Hi Profile",
+      album: "Mucho Bien",
+      duration: "3:41",
+    },
+    {
+      id: 8,
+      title: "Knives n Cherries",
+      subtitle: "",
+      artist: "minthaze",
+      album: "Captivating",
+      duration: "1:48",
+    },
+    {
+      id: 9,
+      title: "How Deep Is Your Love",
+      subtitle: "",
+      artist: "Calvin Harris, Disciples",
+      album: "How Deep Is Your Love",
+      duration: "3:32",
+    },
+    {
+      id: 10,
+      title: "Morena",
+      subtitle: "",
+      artist: "Tom Boxer",
+      album: "Soundz Made in Romania",
+      duration: "3:36",
+    },
+  ];
+
+  return { tracks };
+};
