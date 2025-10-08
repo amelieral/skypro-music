@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'StratosSkyeng'; 
+  src: url('/fonts/StratosSkyeng.woff') format('woff'); 
+  font-weight: normal; 
+  font-style: normal;}
+
 * {
   margin: 0;
   padding: 0;
@@ -65,7 +71,7 @@ body {
 ._btn-text:active {
   border-color: #ad61ff;
   color: #ad61ff;
-  cursor: pointer;
+  cursor: pointer;;
 }
 
 ._btn-icon:active svg {

@@ -18,13 +18,20 @@
           </div>
           <h2 class="centerblock__h2">Треки</h2>
 
-          <FilterControls />
-          <Playlist>
-            <MusicTrack
-              v-for="track in tracks"
-              :key="track.id"
-              :track="track"
-            />
+          <FilterControls :tracks="tracks" />
+
+          <div v-if="pending" class="content__playlist playlist">
+            <div class="loading">Загрузка треков...</div>
+          </div>
+
+          <div v-else-if="error" class="content__playlist playlist">
+            <div class="error">Ошибка загрузки треков: {{ error }}</div>
+          </div>
+
+          <Playlist v-else>
+            <div class="content__playlist playlist">
+              <MusicTrack v-for="track in tracks" :key="track.id" :track="track" />
+            </div>
           </Playlist>
         </div>
 
@@ -78,7 +85,11 @@
 </template>
 
 <script setup>
-const { tracks } = useTracks();
+const { data: response, pending, error } = await useFetch(
+  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/'
+)
+
+const tracks = computed(() => response.value?.data || [])
 </script>
 
 <style scoped>
