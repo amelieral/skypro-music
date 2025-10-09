@@ -30,7 +30,11 @@
 
           <Playlist v-else>
             <div class="content__playlist playlist">
-              <MusicTrack v-for="track in tracks" :key="track.id" :track="track" />
+              <MusicTrack
+                v-for="track in tracks"
+                :key="track.id"
+                :track="track"
+              />
             </div>
           </Playlist>
         </div>
@@ -85,11 +89,26 @@
 </template>
 
 <script setup>
-const { data: response, pending, error } = await useFetch(
-  'https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/'
-)
+const {
+  data: response,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
+);
 
-const tracks = computed(() => response.value?.data || [])
+const tracks = computed(() => response.value?.data || []);
+const playerStore = usePlayerStore();
+
+watch(
+  tracks,
+  (newTracks) => {
+    if (newTracks.length > 0) {
+      playerStore.setPlaylist(newTracks);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
