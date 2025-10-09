@@ -4,43 +4,41 @@
       <div class="track__title">
         <div class="track__title-image">
           <svg class="track__title-svg">
-            <use xlink:href="/img/icon/sprite.svg#icon-note"></use>
+            <use xlink:href="/img/icon/sprite.svg#icon-note" />
           </svg>
         </div>
         <div class="track__title-text">
           <a class="track__title-link" href="http://">
-            {{ track.title }}
+            {{ track.name || track.title }}
             <span class="track__title-span">{{ track.subtitle }}</span>
           </a>
         </div>
       </div>
       <div class="track__author">
-        <a class="track__author-link" href="http/">{{ track.artist }}</a>
+        <a class="track__author-link" href="http/">{{ track.author || track.artist }}</a>
       </div>
       <div class="track__album">
-        <a class="track__album-link" href="http://">{{ track.album }}</a>
+        <a class="track__album-link" href="http/">{{ track.album }}</a>
       </div>
       <div class="track__time">
         <svg class="track__time-svg">
-          <use xlink:href="/img/icon/sprite.svg#icon-like"></use>
+          <use xlink:href="/img/icon/sprite.svg#icon-like" />
         </svg>
-        <span class="track__time-text">{{ track.duration }}</span>
+        <span class="track__time-text">{{ track.duration_in_seconds ? formatDuration(track.duration_in_seconds) : track.duration }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+const { formatDuration } = useTracks()
 
-</script>
-
-<script setup>
 defineProps({
   track: {
     type: Object,
     required: true,
   },
-});
+})
 </script>
 
 <style scoped>

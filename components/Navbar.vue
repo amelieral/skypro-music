@@ -3,12 +3,14 @@
     <div class="nav__logo logo">
       <img class="logo__image" src="/img/logo (1).png" alt="Skypro" />
     </div>
-    <div class="nav__burger burger">
+
+    <div class="nav__burger burger" @click="toggleMenu">
       <span class="burger__line"></span>
       <span class="burger__line"></span>
       <span class="burger__line"></span>
     </div>
-    <div class="nav__menu menu">
+
+    <div class="nav__menu menu" :class="{ 'menu--open': isMenuOpen }">
       <ul class="menu__list">
         <li class="menu__item">
           <a href="#" class="menu__link">Главное</a>
@@ -17,7 +19,7 @@
           <a href="#" class="menu__link">Мой плейлист</a>
         </li>
         <li class="menu__item">
-          <a href="../signin.html" class="menu__link">Войти</a>
+          <a href="/signin" class="menu__link">Войти</a>
         </li>
       </ul>
     </div>
@@ -25,7 +27,17 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
 
+const isMenuOpen = ref(false);
+
+function toggleMenu() {
+  isMenuOpen.value = !isMenuOpen.value;
+}
+
+onMounted(() => {
+  isMenuOpen.value = false;
+});
 </script>
 
 <style scoped>
@@ -44,6 +56,7 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  cursor: pointer;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
@@ -54,8 +67,11 @@
 }
 
 .nav__menu {
+  display: none;
+}
+
+.nav__menu.menu--open {
   display: block;
-  visibility: visible;
 }
 
 .burger__line {
