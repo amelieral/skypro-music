@@ -22,7 +22,6 @@ export function useAudioPlayer() {
         playerStore.audioRef.pause();
         playerStore.setPlaying(false);
       } else {
-
         if (playerStore.currentTrack && !playerStore.audioRef.src) {
           playerStore.audioRef.src = playerStore.currentTrack.track_file;
         }
@@ -54,18 +53,17 @@ export function useAudioPlayer() {
       playerStore.setPlaying(false);
     }
   };
-  
+
   const handleTrackEnd = () => {
     playerStore.setPlaying(false);
     playerStore.setProgress(0);
   };
 
-  const handleTimeUpdate = (event) => {
-    const audio = event.target;
-    const currentTime = audio.currentTime;
-    const duration = audio.duration;
-
-    if (duration && !isNaN(duration) && isFinite(duration)) {
+  const handleTimeUpdate = () => {
+    if (!playerStore.audioRef) return;
+    const currentTime = playerStore.audioRef.currentTime;
+    const duration = playerStore.audioRef.duration;
+    if (duration) {
       const progress = (currentTime / duration) * 100;
       playerStore.setProgress(progress);
     }
@@ -77,7 +75,6 @@ export function useAudioPlayer() {
     playerStore.audioRef.currentTime = newTime;
     playerStore.setProgress(percentage);
   };
-
 
   const updateVolume = () => {
     if (!playerStore.audioRef) return;

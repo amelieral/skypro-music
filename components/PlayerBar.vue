@@ -20,7 +20,7 @@
                 <use
                   :xlink:href="
                     playerStore.isPlaying
-                      ? '/img/icon/sprite.svg#icon-pause'
+                      ? '/img/icon/pause.svg'
                       : '/img/icon/sprite.svg#icon-play'
                   "
                 />
@@ -121,9 +121,7 @@ const handlePlay = () => {
 };
 
 const handleProgressClick = (event) => {
-  if (!playerStore.currentTrack) {
-    return;
-  }
+  if (!playerStore.currentTrack) return;
 
   const progressBar = event.currentTarget;
   const rect = progressBar.getBoundingClientRect();
@@ -262,6 +260,15 @@ const handleProgressClick = (event) => {
   width: 100%;
   height: 5px;
   background: #2e2e2e;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar__player-progress-line {
+  display: block; /* или inline-block */
+  height: 100%;
+  background-color: #d9d9d9;
+  transition: width 0.3s ease;
 }
 
 .bar__player-block {
