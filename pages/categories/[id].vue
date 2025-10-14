@@ -17,11 +17,11 @@
                 name="search"
               />
             </div>
-            <h2 class="centerblock__h2">Треки</h2>
+            <h2 class="centerblock__h2">{{ categoryName }}</h2>
 
             <FilterControls :tracks="tracks" />
 
-            <div v-if="pending" class="content__playlist playlist">
+            <div v-if="loading" class="content__playlist playlist">
               <div class="loading">Загрузка треков...</div>
             </div>
 
@@ -33,7 +33,7 @@
               <div class="content__playlist playlist">
                 <MusicTrack
                   v-for="track in tracks"
-                  :key="track.id"
+                  :key="track._id"
                   :track="track"
                 />
               </div>
@@ -91,22 +91,29 @@
 </template>
 
 <script setup>
-const {
-  data: response,
-  pending,
-  error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+import MusicTrack from "~/components/MusicTrack.vue";
+import { useRoute } from "vue-router";
+import { useCategoryTracks } from "~/composables/useCategoryTracks";
+import { watch } from "vue"; 
+import { useHead } from "#app"; 
 
-const tracks = computed(() => response.value?.data || []);
-const playerStore = usePlayerStore();
+const route = useRoute();
+const { tracks, categoryName, loading, error, fetchCategoryData } =
+  useCategoryTracks();
+
+
+watch(categoryName, (newName) => {
+  useHead({
+    title: `${newName || ""} | Skypro.Music`, 
+  });
+});
+
 
 watch(
-  tracks,
-  (newTracks) => {
-    if (newTracks.length > 0) {
-      playerStore.setPlaylist(newTracks);
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      await fetchCategoryData(newId);
     }
   },
   { immediate: true }

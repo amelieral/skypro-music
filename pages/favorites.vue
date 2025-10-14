@@ -15,13 +15,15 @@
                 type="search"
                 placeholder="Поиск"
                 name="search"
+                v-model="searchQuery"
               />
             </div>
-            <h2 class="centerblock__h2">Треки</h2>
+
+            <h2 class="centerblock__h2">Мои треки</h2>
 
             <FilterControls :tracks="tracks" />
 
-            <div v-if="pending" class="content__playlist playlist">
+            <div v-if="loading" class="content__playlist playlist">
               <div class="loading">Загрузка треков...</div>
             </div>
 
@@ -41,45 +43,6 @@
           </div>
 
           <div class="main__sidebar sidebar">
-            <div class="sidebar__personal">
-              <p class="sidebar__personal-name">Sergey.Ivanov</p>
-              <div class="sidebar__icon">
-                <svg>
-                  <use xlink:href="/img/icon/sprite.svg#logout" />
-                </svg>
-              </div>
-            </div>
-            <div class="sidebar__block">
-              <div class="sidebar__list">
-                <div class="sidebar__item">
-                  <NuxtLink class="sidebar__link" to="/categories/2">
-                    <img
-                      class="sidebar__img"
-                      src="/img/playlist01.png"
-                      alt="Плейлист дня"
-                    />
-                  </NuxtLink>
-                </div>
-                <div class="sidebar__item">
-                  <NuxtLink class="sidebar__link" to="/categories/3">
-                    <img
-                      class="sidebar__img"
-                      src="/img/playlist02.png"
-                      alt="100 танцевальных хитов"
-                    />
-                  </NuxtLink>
-                </div>
-                <div class="sidebar__item">
-                  <NuxtLink class="sidebar__link" to="/categories/4">
-                    <img
-                      class="sidebar__img"
-                      src="/img/playlist03.png"
-                      alt="Инди-заряд"
-                    />
-                  </NuxtLink>
-                </div>
-              </div>
-            </div>
           </div>
         </main>
 
@@ -91,28 +54,60 @@
 </template>
 
 <script setup>
-const {
-  data: response,
-  pending,
-  error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+import { ref, onMounted } from 'vue';
 
-const tracks = computed(() => response.value?.data || []);
-const playerStore = usePlayerStore();
+const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
 
-watch(
-  tracks,
-  (newTracks) => {
-    if (newTracks.length > 0) {
-      playerStore.setPlaylist(newTracks);
+const tracks = ref([]);
+const loading = ref(false);
+const searchQuery = ref('');
+const error = ref(null);
+
+const fetchFavoriteTracks = async () => {
+  loading.value = true;
+  error.value = null;
+
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) {
+    error.value = "Пользователь не авторизован";
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/catalog/track/favorite/all/`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.status === 401) {
+      error.value = "Токен недействителен или просрочен. Пожалуйста, войдите снова.";
+      tracks.value = [];
+      loading.value = false;
+      return;
     }
-  },
-  { immediate: true }
-);
-</script>
 
+    const data = await response.json();
+
+    if (data.success) {
+      tracks.value = data.data;
+    } else {
+      error.value = "Ошибка при загрузке избранных треков";
+      tracks.value = [];
+    }
+  } catch (e) {
+    error.value = e.message || "Ошибка сети";
+    tracks.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchFavoriteTracks();
+});
+</script>
 <style scoped>
 .main {
   -webkit-box-flex: 1;

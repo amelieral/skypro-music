@@ -1,25 +1,25 @@
 <template>
   <nav class="main__nav nav">
     <div class="nav__logo logo">
-      <img class="logo__image" src="/img/logo (1).png" alt="Skypro" >
+      <img class="logo__image" src="/img/logo (1).png" alt="Skypro" />
     </div>
 
     <div class="nav__burger burger" @click="toggleMenu">
-      <span class="burger__line"/>
-      <span class="burger__line"/>
-      <span class="burger__line"/>
+      <span class="burger__line" />
+      <span class="burger__line" />
+      <span class="burger__line" />
     </div>
 
     <div class="nav__menu menu" :class="{ 'menu--open': isMenuOpen }">
       <ul class="menu__list">
         <li class="menu__item">
-          <a href="#" class="menu__link">Главное</a>
+          <NuxtLink to="/" class="menu__link">Главное</NuxtLink>
         </li>
         <li class="menu__item">
-          <a href="#" class="menu__link">Мой плейлист</a>
+          <NuxtLink to="/favorites" class="menu__link">Мой плейлист</NuxtLink>
         </li>
         <li class="menu__item">
-          <a href="/signin" class="menu__link">Войти</a>
+          <NuxtLink to="/login" class="menu__link">Войти</NuxtLink>
         </li>
       </ul>
     </div>
