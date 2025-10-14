@@ -1,5 +1,5 @@
 <template>
-  <div class="playlist__item">
+  <div class="playlist__item" @click="playThisTrack">
     <div class="playlist__track track">
       <div class="track__title">
         <div class="track__title-image">
@@ -15,7 +15,9 @@
         </div>
       </div>
       <div class="track__author">
-        <a class="track__author-link" href="http/">{{ track.author || track.artist }}</a>
+        <a class="track__author-link" href="http/">{{
+          track.author || track.artist
+        }}</a>
       </div>
       <div class="track__album">
         <a class="track__album-link" href="http/">{{ track.album }}</a>
@@ -24,21 +26,30 @@
         <svg class="track__time-svg">
           <use xlink:href="/img/icon/sprite.svg#icon-like" />
         </svg>
-        <span class="track__time-text">{{ track.duration_in_seconds ? formatDuration(track.duration_in_seconds) : track.duration }}</span>
+        <span class="track__time-text">{{
+          track.duration_in_seconds
+            ? formatDuration(track.duration_in_seconds)
+            : track.duration
+        }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const { formatDuration } = useTracks()
+const { formatDuration } = useTracks();
+const { playTrack } = useAudioPlayer();
 
 defineProps({
   track: {
     type: Object,
     required: true,
   },
-})
+});
+
+const playThisTrack = () => {
+  playTrack(track);
+};
 </script>
 
 <style scoped>

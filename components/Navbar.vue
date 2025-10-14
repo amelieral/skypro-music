@@ -1,13 +1,13 @@
 <template>
   <nav class="main__nav nav">
     <div class="nav__logo logo">
-      <img class="logo__image" src="/img/logo (1).png" alt="Skypro" />
+      <img class="logo__image" src="/img/logo (1).png" alt="Skypro" >
     </div>
 
     <div class="nav__burger burger" @click="toggleMenu">
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
+      <span class="burger__line"/>
+      <span class="burger__line"/>
+      <span class="burger__line"/>
     </div>
 
     <div class="nav__menu menu" :class="{ 'menu--open': isMenuOpen }">
