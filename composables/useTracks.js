@@ -1,28 +1,201 @@
-import { ref } from "vue";
+import { defineStore } from "pinia";
 
-const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
+export const useTracks = defineStore("tracks", () => {
 
-export const useTracks = () => {
   const tracks = ref([]);
-  const loading = ref(false);
-  const error = ref(null);
 
-  const fetchTracks = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await fetch(`${API_URL}/catalog/track/all/`);
-      if (!response.ok) {
-        throw new Error("Не удалось получить треки");
-      }
-      const data = await response.json();
-      tracks.value = data.data;
-    } catch (e) {
-      error.value =
-        e instanceof Error ? e.message : "Ошибка при загрузке треков :(";
-    } finally {
-      loading.value = false;
+
+  const searchQuery = ref("");
+  const activeFilter = ref(null);
+  const selectedAuthor = ref("");
+  const selectedYear = ref("");
+  const selectedGenre = ref("");
+  const sortBy = ref("name");
+  const sortOrder = ref("asc");
+
+  // Getters (computed)
+  const filteredTracks = computed(() => {
+    let filtered = [...tracks.value];
+
+
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase();
+      filtered = filtered.filter(
+        (track) =>
+          track.name?.toLowerCase().includes(query) ||
+          track.author?.toLowerCase().includes(query) ||
+          track.album?.toLowerCase().includes(query)
+      );
     }
+
+
+    if (selectedAuthor.value) {
+      filtered = filtered.filter(
+        (track) => track.author === selectedAuthor.value
+      );
+    }
+
+
+    if (selectedYear.value) {
+      filtered = filtered.filter((track) => {
+        if (selectedYear.value === "Неизвестно") return !track.release_date;
+
+        if (track.release_date) {
+          const date = new Date(track.release_date.split("<")[0]);
+          if (!isNaN(date.getTime())) {
+            return date.getFullYear().toString() === selectedYear.value;
+          }
+        }
+        return false;
+      });
+    }
+
+
+    if (selectedGenre.value) {
+      filtered = filtered.filter((track) => {
+        if (Array.isArray(track.genre)) {
+          return track.genre.some(
+            (g) => g?.toLowerCase().trim() === selectedGenre.value.toLowerCase()
+          );
+        }
+        return (
+          track.genre?.toLowerCase().trim() ===
+          selectedGenre.value.toLowerCase()
+        );
+      });
+    }
+
+
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortBy.value) {
+        case "name":
+          aValue = a.name || "";
+          bValue = b.name || "";
+          break;
+        case "author":
+          aValue = a.author || "";
+          bValue = b.author || "";
+          break;
+        case "release_date":
+          aValue = a.release_date
+            ? new Date(a.release_date.split("<")[0])
+            : new Date(0);
+          bValue = b.release_date
+            ? new Date(b.release_date.split("<")[0])
+            : new Date(0);
+          break;
+        case "duration":
+          aValue = a.duration_in_seconds || 0;
+          bValue = b.duration_in_seconds || 0;
+          break;
+        default:
+          aValue = a.name || "";
+          bValue = b.name || "";
+      }
+
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) return sortOrder.value === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortOrder.value === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  });
+
+
+  const authorItems = computed(() => {
+    const items = new Set();
+    tracks.value.forEach((track) => {
+      if (track.author) {
+        items.add(track.author);
+      }
+    });
+    return Array.from(items).sort((a, b) => {
+      if (a === "Неизвестно") return 1;
+      if (b === "Неизвестно") return -1;
+      return a.localeCompare(b);
+    });
+  });
+
+  const yearItems = computed(() => {
+    const items = new Set();
+    tracks.value.forEach((track) => {
+      let year = "Неизвестно";
+
+      if (track.release_date) {
+        const date = new Date(track.release_date.split("<")[0]);
+        if (!isNaN(date.getTime())) {
+          year = date.getFullYear().toString();
+        }
+      }
+      items.add(year);
+    });
+    return Array.from(items).sort((a, b) => {
+      if (a === "Неизвестно") return 1;
+      if (b === "Неизвестно") return -1;
+      return b.localeCompare(a);
+    });
+  });
+
+  const genreItems = computed(() => {
+    const items = new Set();
+    tracks.value.forEach((track) => {
+      if (Array.isArray(track.genre)) {
+        track.genre.forEach((g) => g && items.add(g.toLowerCase().trim()));
+      } else if (track.genre) {
+        items.add(track.genre.toLowerCase().trim());
+      }
+    });
+    return Array.from(items).sort((a, b) => {
+      if (a === "неизвестно") return 1;
+      if (b === "неизвестно") return -1;
+      return a.localeCompare(b);
+    });
+  });
+
+
+  const setTracks = (newTracks) => {
+    tracks.value = newTracks;
+  };
+
+  const setSearchQuery = (query) => {
+    searchQuery.value = query;
+  };
+
+  const setActiveFilter = (filter) => {
+    activeFilter.value = activeFilter.value === filter ? null : filter;
+  };
+
+  const setSelectedAuthor = (author) => {
+  selectedAuthor.value = author;
+  selectedYear.value = "";
+  selectedGenre.value = "";
+  activeFilter.value = null;
+};
+
+const setSelectedYear = (year) => {
+  selectedYear.value = year;
+  selectedAuthor.value = "";
+  selectedGenre.value = "";
+  activeFilter.value = null;
+};
+
+const setSelectedGenre = (genre) => {
+  selectedGenre.value = genre;
+  selectedAuthor.value = "";
+  selectedYear.value = "";
+  activeFilter.value = null;
+};
+
+  const setSort = (field, order = "asc") => {
+    sortBy.value = field;
+    sortOrder.value = order;
   };
 
   const formatDuration = (seconds) => {
@@ -32,10 +205,30 @@ export const useTracks = () => {
   };
 
   return {
-    tracks,
-    loading,
-    error,
-    fetchTracks,
+
+    tracks: readonly(tracks),
+    searchQuery,
+    activeFilter,
+    selectedAuthor,
+    selectedYear,
+    selectedGenre,
+    sortBy,
+    sortOrder,
+
+
+    filteredTracks,
+    authorItems,
+    yearItems,
+    genreItems,
+
+
+    setTracks,
+    setSearchQuery,
+    setActiveFilter,
+    setSelectedAuthor,
+    setSelectedYear,
+    setSelectedGenre,
+    setSort,
     formatDuration,
   };
-};
+});

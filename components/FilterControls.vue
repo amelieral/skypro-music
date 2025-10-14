@@ -5,14 +5,21 @@
     <div class="filter__wrapper">
       <div
         class="filter__button button-author _btn-text"
-        :class="{ active: activeFilter === 'author' }"
+        :class="{ active: activeFilter === 'author' || selectedAuthor }"
         @click="toggleFilter('author')"
       >
         исполнителю
+        <span v-if="selectedAuthor" class="filter-indicator"></span>
       </div>
       <div v-show="activeFilter === 'author'" class="filter__dropdown">
         <ul class="filter__list">
-          <li v-for="item in authorItems" :key="item" class="filter__item">
+          <li
+            v-for="item in authorItems"
+            :key="item"
+            class="filter__item"
+            :class="{ active: selectedAuthor === item }"
+            @click="selectAuthor(item)"
+          >
             {{ item }}
           </li>
         </ul>
@@ -22,14 +29,23 @@
     <div class="filter__wrapper">
       <div
         class="filter__button button-author _btn-text"
-        :class="{ active: activeFilter === 'year' }"
+        :class="{ active: activeFilter === 'year' || selectedYear.length > 0 }"
         @click="toggleFilter('year')"
       >
         году выпуска
+        <span v-if="selectedYear.length" class="filter-indicator">
+          {{ selectedYear.length }}
+        </span>
       </div>
       <div v-show="activeFilter === 'year'" class="filter__dropdown">
         <ul class="filter__list">
-          <li v-for="item in yearItems" :key="item" class="filter__item">
+          <li
+            v-for="item in yearItems"
+            :key="item"
+            class="filter__item"
+            :class="{ active: selectedYear === item }"
+            @click="selectYear(item)"
+          >
             {{ item }}
           </li>
         </ul>
@@ -39,14 +55,28 @@
     <div class="filter__wrapper">
       <div
         class="filter__button button-author _btn-text"
-        :class="{ active: activeFilter === 'genre' }"
+        :class="{
+          active: activeFilter === 'genre' || selectedGenre.length > 0,
+        }"
         @click="toggleFilter('genre')"
       >
         жанру
+        <span v-if="selectedGenre.length" class="filter-indicator">
+          {{ selectedGenre.length }}
+        </span>
       </div>
-      <div v-show="activeFilter === 'genre'" class="filter__dropdown filter__dropdown--genre">
+      <div
+        v-show="activeFilter === 'genre'"
+        class="filter__dropdown filter__dropdown--genre"
+      >
         <ul class="filter__list">
-          <li v-for="item in genreItems" :key="item" class="filter__item">
+          <li
+            v-for="item in genreItems"
+            :key="item"
+            class="filter__item"
+            :class="{ active: selectedGenre === item }"
+            @click="selectGenre(item)"
+          >
             {{ item }}
           </li>
         </ul>
@@ -56,73 +86,44 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
 
-const activeFilter = ref(null);
+const tracksStore = useTracks();
 
-const props = defineProps({
-  tracks: {
-    type: Array,
-    default: () => [],
-  },
-});
 
-const authorItems = computed(() => {
-  if (!props.tracks) return [];
-  const items = new Set();
-  props.tracks.forEach((track) => {
-    if (track.author) {
-      items.add(track.author);
-    }
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "Неизвестно") return 1;
-    if (b === "Неизвестно") return -1;
-    return a.localeCompare(b);
-  });
-});
+const {
+  activeFilter,
+  selectedAuthor,
+  selectedYear,
+  selectedGenre,
+  authorItems,
+  yearItems,
+  genreItems,
+} = storeToRefs(tracksStore);
 
-const yearItems = computed(() => {
-  if (!props.tracks) return [];
-  const items = new Set();
-  props.tracks.forEach((track) => {
-    let year = "Неизвестно";
-    
-    if (track.release_date) {
-      const date = new Date(track.release_date.split("<")[0]);
-      if (!isNaN(date.getTime())) {
-        year = date.getFullYear().toString();
-      }
-    }
-    items.add(year);
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "Неизвестно") return 1;
-    if (b === "Неизвестно") return -1;
-    return b.localeCompare(a); 
-  });
-});
 
-const genreItems = computed(() => {
-  if (!props.tracks) return [];
-  const items = new Set();
-  props.tracks.forEach((track) => {
-    if (Array.isArray(track.genre)) {
-      track.genre.forEach((g) => g && items.add(g.toLowerCase().trim()));
-    } else if (track.genre) {
-      items.add(track.genre.toLowerCase().trim());
-    }
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "неизвестно") return 1;
-    if (b === "неизвестно") return -1;
-    return a.localeCompare(b);
-  });
-});
+const {
+  setActiveFilter,
+  setSelectedAuthor,
+  setSelectedYear,
+  setSelectedGenre,
+} = tracksStore;
 
 const toggleFilter = (filter) => {
-  activeFilter.value = activeFilter.value === filter ? null : filter;
+  setActiveFilter(filter);
 };
+
+const selectAuthor = (author) => {
+  setSelectedAuthor(author);
+};
+
+const selectYear = (year) => {
+  setSelectedYear(year);
+};
+
+const selectGenre = (genre) => {
+  setSelectedGenre(genre);
+};
+
 </script>
 
 <style scoped>
@@ -142,6 +143,7 @@ const toggleFilter = (filter) => {
   border: 1px solid #ffffff;
   border-radius: 60px;
   padding: 6px 20px;
+  position: relative;
 }
 
 .filter__button:not(:last-child) {
@@ -191,30 +193,28 @@ const toggleFilter = (filter) => {
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  padding: 34px; 
+  padding: 34px;
 }
 
 .filter__dropdown--genre {
-  height: 196px; 
+  height: 196px;
 }
-
 
 .filter__list {
   margin: 0;
   padding: 0;
   list-style: none;
-
 }
 
 .filter__item:last-child {
-  margin-bottom: 0; 
+  margin-bottom: 0;
 }
 
 .filter__item {
   padding: 6px 0;
   color: white;
   cursor: pointer;
-  font-family: 'StratosSkyeng', sans-serif;
+  font-family: "StratosSkyeng", sans-serif;
   font-weight: 400;
   font-size: 20px;
   margin-bottom: 20px;
@@ -233,7 +233,7 @@ const toggleFilter = (filter) => {
 .filter__dropdown::-webkit-scrollbar-track {
   background-color: #4b4949;
   border-radius: 10px;
-  margin: 34px 0; 
+  margin: 34px 0;
 }
 
 .filter__dropdown::-webkit-scrollbar-thumb {
@@ -244,5 +244,15 @@ const toggleFilter = (filter) => {
 
 .filter__dropdown::after {
   display: none;
+}
+
+.filter-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  background-color: #ad61ff;
+  border-radius: 50%;
 }
 </style>

@@ -82,7 +82,7 @@ const fetchFavoriteTracks = async () => {
     });
 
     if (response.status === 401) {
-      error.value = "Токен недействителен или просрочен. Пожалуйста, войдите снова.";
+      error.value = "Пожалуйста, войдите снова.";
       tracks.value = [];
       loading.value = false;
       return;

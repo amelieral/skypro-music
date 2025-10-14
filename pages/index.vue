@@ -11,6 +11,7 @@
                 <use xlink:href="/img/icon/sprite.svg#icon-search" />
               </svg>
               <input
+                v-model="searchQuery"
                 class="search__text"
                 type="search"
                 placeholder="Поиск"
@@ -19,7 +20,7 @@
             </div>
             <h2 class="centerblock__h2">Треки</h2>
 
-            <FilterControls :tracks="tracks" />
+            <FilterControls />
 
             <div v-if="pending" class="content__playlist playlist">
               <div class="loading">Загрузка треков...</div>
@@ -32,14 +33,14 @@
             <Playlist v-else>
               <div class="content__playlist playlist">
                 <MusicTrack
-                  v-for="track in tracks"
+                  v-for="track in filteredTracks"
                   :key="track.id"
                   :track="track"
                 />
               </div>
             </Playlist>
           </div>
-
+          
           <div class="main__sidebar sidebar">
             <div class="sidebar__personal">
               <p class="sidebar__personal-name">Sergey.Ivanov</p>
@@ -91,6 +92,7 @@
 </template>
 
 <script setup>
+import { useHead } from '#app';
 const {
   data: response,
   pending,
@@ -100,17 +102,36 @@ const {
 );
 
 const tracks = computed(() => response.value?.data || []);
+
+const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 
 watch(
   tracks,
   (newTracks) => {
     if (newTracks.length > 0) {
+      tracksStore.setTracks(newTracks);
       playerStore.setPlaylist(newTracks);
     }
   },
   { immediate: true }
 );
+
+const filteredTracks = computed(() => tracksStore.filteredTracks);
+const searchQuery = computed({
+  get: () => tracksStore.searchQuery,
+  set: (value) => tracksStore.setSearchQuery(value),
+});
+
+useHead({
+  title: "Треки | Skypro.Music",
+  meta: [
+    { name: "description", content: "Все треки в одном месте" },
+    { property: "og:title", content: "Треки | Skypro Music" },
+    { property: "og:site_name", content: "Skypro Music" },
+    { name: "twitter:title", content: "Skypro Music — Треки" },
+  ],
+});
 </script>
 
 <style scoped>
