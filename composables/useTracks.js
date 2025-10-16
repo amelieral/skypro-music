@@ -1,9 +1,7 @@
 import { defineStore } from "pinia";
 
 export const useTracks = defineStore("tracks", () => {
-
   const tracks = ref([]);
-
 
   const searchQuery = ref("");
   const activeFilter = ref(null);
@@ -13,10 +11,8 @@ export const useTracks = defineStore("tracks", () => {
   const sortBy = ref("name");
   const sortOrder = ref("asc");
 
-  // Getters (computed)
   const filteredTracks = computed(() => {
     let filtered = [...tracks.value];
-
 
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase();
@@ -28,13 +24,11 @@ export const useTracks = defineStore("tracks", () => {
       );
     }
 
-
     if (selectedAuthor.value) {
       filtered = filtered.filter(
         (track) => track.author === selectedAuthor.value
       );
     }
-
 
     if (selectedYear.value) {
       filtered = filtered.filter((track) => {
@@ -50,7 +44,6 @@ export const useTracks = defineStore("tracks", () => {
       });
     }
 
-
     if (selectedGenre.value) {
       filtered = filtered.filter((track) => {
         if (Array.isArray(track.genre)) {
@@ -64,7 +57,6 @@ export const useTracks = defineStore("tracks", () => {
         );
       });
     }
-
 
     filtered.sort((a, b) => {
       let aValue, bValue;
@@ -107,7 +99,6 @@ export const useTracks = defineStore("tracks", () => {
 
     return filtered;
   });
-
 
   const authorItems = computed(() => {
     const items = new Set();
@@ -159,7 +150,6 @@ export const useTracks = defineStore("tracks", () => {
     });
   });
 
-
   const setTracks = (newTracks) => {
     tracks.value = newTracks;
   };
@@ -173,25 +163,19 @@ export const useTracks = defineStore("tracks", () => {
   };
 
   const setSelectedAuthor = (author) => {
-  selectedAuthor.value = author;
-  selectedYear.value = "";
-  selectedGenre.value = "";
-  activeFilter.value = null;
-};
+    selectedAuthor.value = author === selectedAuthor.value ? "" : author; 
+    activeFilter.value = null;
+  };
 
-const setSelectedYear = (year) => {
-  selectedYear.value = year;
-  selectedAuthor.value = "";
-  selectedGenre.value = "";
-  activeFilter.value = null;
-};
+  const setSelectedYear = (year) => {
+    selectedYear.value = year === selectedYear.value ? "" : year;
+    activeFilter.value = null;
+  };
 
-const setSelectedGenre = (genre) => {
-  selectedGenre.value = genre;
-  selectedAuthor.value = "";
-  selectedYear.value = "";
-  activeFilter.value = null;
-};
+  const setSelectedGenre = (genre) => {
+    selectedGenre.value = genre === selectedGenre.value ? "" : genre;
+    activeFilter.value = null;
+  };
 
   const setSort = (field, order = "asc") => {
     sortBy.value = field;
@@ -205,8 +189,7 @@ const setSelectedGenre = (genre) => {
   };
 
   return {
-
-    tracks: readonly(tracks),
+    tracks,
     searchQuery,
     activeFilter,
     selectedAuthor,
@@ -215,12 +198,10 @@ const setSelectedGenre = (genre) => {
     sortBy,
     sortOrder,
 
-
     filteredTracks,
     authorItems,
     yearItems,
     genreItems,
-
 
     setTracks,
     setSearchQuery,

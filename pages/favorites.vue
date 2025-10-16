@@ -1,67 +1,58 @@
 <template>
   <NuxtLayout name="default">
-    <div class="wrapper">
-      <div class="container">
-        <main class="main">
-          <Navbar />
-
-          <div class="main__centerblock centerblock">
-            <div class="centerblock__search search">
-              <svg class="search__svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-search" />
-              </svg>
-              <input
-                class="search__text"
-                type="search"
-                placeholder="Поиск"
-                name="search"
-                v-model="searchQuery"
-              />
-            </div>
-
-            <h2 class="centerblock__h2">Мои треки</h2>
-
-            <FilterControls :tracks="tracks" />
-
-            <div v-if="loading" class="content__playlist playlist">
-              <div class="loading">Загрузка треков...</div>
-            </div>
-
-            <div v-else-if="error" class="content__playlist playlist">
-              <div class="error">Ошибка загрузки треков: {{ error }}</div>
-            </div>
-
-            <Playlist v-else>
-              <div class="content__playlist playlist">
-                <MusicTrack
-                  v-for="track in tracks"
-                  :key="track.id"
-                  :track="track"
-                />
-              </div>
-            </Playlist>
-          </div>
-
-          <div class="main__sidebar sidebar">
-          </div>
-        </main>
-
-        <PlayerBar />
-        <footer class="footer" />
-      </div>
+    <div class="centerblock__search search">
+      <svg class="search__svg">
+        <use xlink:href="/img/icon/sprite.svg#icon-search" />
+      </svg>
+      <input
+        class="search__text"
+        type="search"
+        placeholder="Поиск"
+        name="search"
+        v-model="searchQuery"
+      />
     </div>
+
+    <h2 class="centerblock__h2">Мои треки</h2>
+
+    <FilterControls :tracks="tracks" />
+
+    <div v-if="loading" class="content__playlist playlist">
+      <div class="loading">Загрузка треков...</div>
+    </div>
+
+    <div v-else-if="error" class="content__playlist playlist">
+      <div class="error">Ошибка загрузки треков: {{ error }}</div>
+    </div>
+
+    <Playlist v-else>
+      <div class="content__playlist playlist">
+        <MusicTrack v-for="track in tracks" :key="track.id" :track="track" />
+      </div>
+    </Playlist>
+    <footer class="footer" />
   </NuxtLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 
 const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
 
 const tracks = ref([]);
 const loading = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref("");
 const error = ref(null);
+
+useHead({
+  title: "Мои треки | Skypro.Music",
+  meta: [
+    { name: "description", content: "Ваши любимые треки в одном месте" },
+    { property: "og:title", content: "Мои треки | Skypro Music" },
+    { property: "og:site_name", content: "Skypro Music" },
+    { name: "twitter:title", content: "Skypro Music — Мои треки" },
+  ],
+});
 
 const fetchFavoriteTracks = async () => {
   loading.value = true;
@@ -109,39 +100,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-.main {
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 auto;
-  flex: 1 1 auto;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-}
-
-.main__nav {
-  width: 244px;
-  background-color: #181818;
-  padding: 20px 0 20px 36px;
-}
-
-.main__centerblock {
-  width: auto;
-  -webkit-box-flex: 3;
-  -ms-flex-positive: 3;
-  flex-grow: 3;
-  padding: 20px 40px 20px 111px;
-}
-
-.main__sidebar {
-  max-width: 418px;
-  padding: 20px 90px 20px 78px;
-}
-
 .centerblock__search {
   width: 100%;
   border-bottom: 1px solid #4e4e4e;
@@ -165,16 +123,6 @@ onMounted(() => {
   line-height: 72px;
   letter-spacing: -0.8px;
   margin-bottom: 45px;
-}
-
-.centerblock__content {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
 }
 
 .search__svg {
@@ -233,86 +181,5 @@ onMounted(() => {
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-}
-
-.sidebar__personal {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: end;
-  -ms-flex-pack: end;
-  justify-content: flex-end;
-  padding: 12px 0 15px 0;
-}
-
-.sidebar__personal-name {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #ffffff;
-  margin-right: 16px;
-}
-
-.sidebar__icon {
-  width: 43px;
-  height: 43px;
-  background-color: #313131;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.sidebar__block {
-  height: 100%;
-  padding: 240px 0 0 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: start;
-  -ms-flex-pack: start;
-  justify-content: flex-start;
-}
-
-.sidebar__list {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.sidebar__item {
-  width: 250px;
-  height: 150px;
-}
-
-.sidebar__item:not(:last-child) {
-  margin-bottom: 30px;
-}
-
-.sidebar__link {
-  width: 100%;
-  height: 100%;
-}
-
-.sidebar__img {
-  width: 100%;
-  height: auto;
 }
 </style>
