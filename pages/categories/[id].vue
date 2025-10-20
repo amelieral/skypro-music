@@ -5,18 +5,17 @@
         <use xlink:href="/img/icon/sprite.svg#icon-search" />
       </svg>
       <input
-        v-model="searchQuery"
         class="search__text"
         type="search"
         placeholder="Поиск"
         name="search"
       />
     </div>
-    <h2 class="centerblock__h2">Треки</h2>
+    <h2 class="centerblock__h2">{{ categoryName }}</h2>
 
-    <FilterControls />
+    <FilterControls :tracks="tracks" />
 
-    <div v-if="pending" class="content__playlist playlist">
+    <div v-if="loading" class="content__playlist playlist">
       <div class="loading">Загрузка треков...</div>
     </div>
 
@@ -26,11 +25,7 @@
 
     <Playlist v-else>
       <div class="content__playlist playlist">
-        <MusicTrack
-          v-for="track in filteredTracks"
-          :key="track.id"
-          :track="track"
-        />
+        <MusicTrack v-for="track in tracks" :key="track._id" :track="track" />
       </div>
     </Playlist>
     <footer class="footer" />
@@ -38,45 +33,30 @@
 </template>
 
 <script setup>
-const {
-  data: response,
-  pending,
-  error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+import MusicTrack from "~/components/MusicTrack.vue";
+import { useRoute } from "vue-router";
+import { useCategoryTracks } from "~/composables/useCategoryTracks";
+import { watch } from "vue";
 
-const tracks = computed(() => response.value?.data || []);
+const route = useRoute();
+const { tracks, categoryName, loading, error, fetchCategoryData } =
+  useCategoryTracks();
 
-const tracksStore = useTracks();
-const playerStore = usePlayerStore();
+watch(categoryName, (newName) => {
+  useHead({
+    title: `${newName || ""} | Skypro.Music`,
+  });
+});
 
 watch(
-  tracks,
-  (newTracks) => {
-    if (newTracks.length > 0) {
-      tracksStore.setTracks(newTracks);
-      playerStore.setPlaylist(newTracks);
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      await fetchCategoryData(newId);
     }
   },
   { immediate: true }
 );
-
-const filteredTracks = computed(() => tracksStore.filteredTracks);
-const searchQuery = computed({
-  get: () => tracksStore.searchQuery,
-  set: (value) => tracksStore.setSearchQuery(value),
-});
-
-useHead({
-  title: "Треки | Skypro.Music",
-  meta: [
-    { name: "description", content: "Все треки в одном месте" },
-    { property: "og:title", content: "Треки | Skypro Music" },
-    { property: "og:site_name", content: "Skypro Music" },
-    { name: "twitter:title", content: "Skypro Music — Треки" },
-  ],
-});
 </script>
 
 <style scoped>

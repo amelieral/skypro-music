@@ -5,18 +5,19 @@
         <use xlink:href="/img/icon/sprite.svg#icon-search" />
       </svg>
       <input
-        v-model="searchQuery"
         class="search__text"
         type="search"
         placeholder="Поиск"
         name="search"
+        v-model="searchQuery"
       />
     </div>
-    <h2 class="centerblock__h2">Треки</h2>
 
-    <FilterControls />
+    <h2 class="centerblock__h2">Мои треки</h2>
 
-    <div v-if="pending" class="content__playlist playlist">
+    <FilterControls :tracks="tracks" />
+
+    <div v-if="loading" class="content__playlist playlist">
       <div class="loading">Загрузка треков...</div>
     </div>
 
@@ -26,11 +27,7 @@
 
     <Playlist v-else>
       <div class="content__playlist playlist">
-        <MusicTrack
-          v-for="track in filteredTracks"
-          :key="track.id"
-          :track="track"
-        />
+        <MusicTrack v-for="track in tracks" :key="track.id" :track="track" />
       </div>
     </Playlist>
     <footer class="footer" />
@@ -38,47 +35,70 @@
 </template>
 
 <script setup>
-const {
-  data: response,
-  pending,
-  error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+import { ref, onMounted } from "vue";
 
-const tracks = computed(() => response.value?.data || []);
+const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
 
-const tracksStore = useTracks();
-const playerStore = usePlayerStore();
-
-watch(
-  tracks,
-  (newTracks) => {
-    if (newTracks.length > 0) {
-      tracksStore.setTracks(newTracks);
-      playerStore.setPlaylist(newTracks);
-    }
-  },
-  { immediate: true }
-);
-
-const filteredTracks = computed(() => tracksStore.filteredTracks);
-const searchQuery = computed({
-  get: () => tracksStore.searchQuery,
-  set: (value) => tracksStore.setSearchQuery(value),
-});
+const tracks = ref([]);
+const loading = ref(false);
+const searchQuery = ref("");
+const error = ref(null);
 
 useHead({
-  title: "Треки | Skypro.Music",
+  title: "Мои треки | Skypro.Music",
   meta: [
-    { name: "description", content: "Все треки в одном месте" },
-    { property: "og:title", content: "Треки | Skypro Music" },
+    { name: "description", content: "Ваши любимые треки в одном месте" },
+    { property: "og:title", content: "Мои треки | Skypro Music" },
     { property: "og:site_name", content: "Skypro Music" },
-    { name: "twitter:title", content: "Skypro Music — Треки" },
+    { name: "twitter:title", content: "Skypro Music — Мои треки" },
   ],
 });
-</script>
 
+const fetchFavoriteTracks = async () => {
+  loading.value = true;
+  error.value = null;
+
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) {
+    error.value = "Пользователь не авторизован";
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/catalog/track/favorite/all/`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.status === 401) {
+      error.value = "Пожалуйста, войдите снова.";
+      tracks.value = [];
+      loading.value = false;
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      tracks.value = data.data;
+    } else {
+      error.value = "Ошибка при загрузке избранных треков";
+      tracks.value = [];
+    }
+  } catch (e) {
+    error.value = e.message || "Ошибка сети";
+    tracks.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchFavoriteTracks();
+});
+</script>
 <style scoped>
 .centerblock__search {
   width: 100%;

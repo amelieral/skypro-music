@@ -1,3 +1,4 @@
+import { watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
 
 export function useAudioPlayer() {
@@ -80,6 +81,12 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
+
+  watchEffect(() => {
+    if (playerStore.progress >= 100 && playerStore.isPlaying) {
+      playerStore.setPlaying(false);
+    }
+  });
 
   return {
     initPlayer,
