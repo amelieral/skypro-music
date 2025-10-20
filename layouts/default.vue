@@ -19,7 +19,7 @@
             <div class="sidebar__list">
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/2">
-                  <img
+                  <NuxtImg 
                     class="sidebar__img"
                     src="/img/playlist01.png"
                     alt="Плейлист дня"
@@ -28,7 +28,7 @@
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/3">
-                  <img
+                  <NuxtImg
                     class="sidebar__img"
                     src="/img/playlist02.png"
                     alt="100 танцевальных хитов"
@@ -37,7 +37,7 @@
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/4">
-                  <img
+                  <NuxtImg
                     class="sidebar__img"
                     src="/img/playlist03.png"
                     alt="Инди-заряд"

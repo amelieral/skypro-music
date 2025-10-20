@@ -4,10 +4,12 @@
       <div class="modal__block">
         <form class="modal__form-login" @submit.prevent="handleSubmit">
           <NuxtLink to="/">
-            <div class="modal__logo">
-              <img src="/img/logo_modal.png" alt="logo" />
-            </div>
-          </NuxtLink>
+              <NuxtImg class="modal__logo"
+              :placeholder="[5]" 
+              src="/img/logo_modal.png"
+              alt="logo login" 
+              />
+            </NuxtLink>
 
           <input
             v-model="email"

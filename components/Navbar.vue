@@ -1,8 +1,10 @@
 <template>
   <nav class="main__nav nav">
-    <div class="nav__logo logo">
-      <img class="logo__image" src="/img/logo (1).png" alt="Skypro" />
-    </div>
+
+    <NuxtImg class="nav__logo logo"
+      alt="логотип Skypro Music"  
+      src="/img/logo (1).png" 
+    />
 
     <div class="nav__burger burger" @click="toggleMenu">
       <span class="burger__line" />

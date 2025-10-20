@@ -10,9 +10,9 @@
       <div class="bar__player-block">
         <div class="bar__player player">
           <div class="player__controls">
-            <div class="player__btn-prev">
+            <div class="player__btn-prev" @click="handlePrev">
               <svg class="player__btn-prev-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-prev"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-prev" />
               </svg>
             </div>
             <div class="player__btn-play _btn" @click="handlePlay">
@@ -26,19 +26,19 @@
                 />
               </svg>
             </div>
-            <div class="player__btn-next">
+            <div class="player__btn-next" @click="handleNext">
               <svg class="player__btn-next-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-next"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-next" />
               </svg>
             </div>
-            <div class="player__btn-repeat _btn-icon">
+            <div class="player__btn-repeat _btn-icon" @click="toggleRepeat">
               <svg class="player__btn-repeat-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-repeat"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-repeat" />
               </svg>
             </div>
-            <div class="player__btn-shuffle _btn-icon">
+            <div class="player__btn-shuffle _btn-icon" @click="toggleShuffle">
               <svg class="player__btn-shuffle-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-shuffle"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-shuffle" />
               </svg>
             </div>
           </div>
@@ -66,7 +66,7 @@
           <div class="volume__content">
             <div class="volume__image">
               <svg class="volume__svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-volume"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-volume" />
               </svg>
             </div>
             <div class="volume__progress _btn">
@@ -78,7 +78,7 @@
                 min="0"
                 max="100"
                 @input="updateVolume"
-              >
+              />
             </div>
           </div>
         </div>
@@ -129,6 +129,28 @@ const handleProgressClick = (event) => {
   const progressBarWidth = progressBar.offsetWidth;
   const percentage = (clickPosition / progressBarWidth) * 100;
   seekTo(percentage);
+};
+
+const handleNext = () => {
+  const nextTrack = playerStore.playNextTrack();
+  if (nextTrack) {
+    playTrack(nextTrack);
+  }
+};
+
+const handlePrev = () => {
+  const prevTrack = playerStore.playPreviousTrack();
+  if (prevTrack) {
+    playTrack(prevTrack);
+  }
+};
+
+const toggleShuffle = () => {
+  playerStore.toggleShuffle();
+};
+
+const toggleRepeat = () => {
+  playerStore.toggleRepeat();
 };
 </script>
 

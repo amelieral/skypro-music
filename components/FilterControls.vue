@@ -255,4 +255,9 @@ const selectGenre = (genre) => {
   background-color: #ad61ff;
   border-radius: 50%;
 }
+
+.filter__item.active {
+  color: #ad61ff;
+  text-decoration: underline;
+}
 </style>
