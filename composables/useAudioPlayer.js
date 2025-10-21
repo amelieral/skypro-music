@@ -1,4 +1,3 @@
-// import { watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
 
 export function useAudioPlayer() {
