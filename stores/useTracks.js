@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
 export const useTracks = defineStore("tracks", () => {
   const tracks = ref([]);
@@ -10,6 +11,9 @@ export const useTracks = defineStore("tracks", () => {
   const selectedGenre = ref("");
   const sortBy = ref("name");
   const sortOrder = ref("asc");
+
+  const isShuffle = ref(false);
+  const shuffledTracks = ref([]);
 
   const filteredTracks = computed(() => {
     let filtered = [...tracks.value];
@@ -100,25 +104,41 @@ export const useTracks = defineStore("tracks", () => {
     return filtered;
   });
 
+  const shuffleArray = (array) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  };
+
+  const toggleShuffle = () => {
+    isShuffle.value = !isShuffle.value;
+
+    if (isShuffle.value) {
+      shuffledTracks.value = shuffleArray(filteredTracks.value);
+    } else {
+      shuffledTracks.value = [];
+    }
+  };
+
+  const displayedTracks = computed(() =>
+    isShuffle.value ? shuffledTracks.value : filteredTracks.value
+  );
+
   const authorItems = computed(() => {
     const items = new Set();
     tracks.value.forEach((track) => {
-      if (track.author) {
-        items.add(track.author);
-      }
+      if (track.author) items.add(track.author);
     });
-    return Array.from(items).sort((a, b) => {
-      if (a === "Неизвестно") return 1;
-      if (b === "Неизвестно") return -1;
-      return a.localeCompare(b);
-    });
+    return Array.from(items).sort((a, b) => a.localeCompare(b));
   });
 
   const yearItems = computed(() => {
     const items = new Set();
     tracks.value.forEach((track) => {
       let year = "Неизвестно";
-
       if (track.release_date) {
         const date = new Date(track.release_date.split("<")[0]);
         if (!isNaN(date.getTime())) {
@@ -127,11 +147,7 @@ export const useTracks = defineStore("tracks", () => {
       }
       items.add(year);
     });
-    return Array.from(items).sort((a, b) => {
-      if (a === "Неизвестно") return 1;
-      if (b === "Неизвестно") return -1;
-      return b.localeCompare(a);
-    });
+    return Array.from(items).sort((a, b) => b.localeCompare(a));
   });
 
   const genreItems = computed(() => {
@@ -143,40 +159,31 @@ export const useTracks = defineStore("tracks", () => {
         items.add(track.genre.toLowerCase().trim());
       }
     });
-    return Array.from(items).sort((a, b) => {
-      if (a === "неизвестно") return 1;
-      if (b === "неизвестно") return -1;
-      return a.localeCompare(b);
-    });
+    return Array.from(items).sort((a, b) => a.localeCompare(b));
   });
 
   const setTracks = (newTracks) => {
     tracks.value = newTracks;
+    if (isShuffle.value) {
+      shuffledTracks.value = shuffleArray(filteredTracks.value);
+    }
   };
 
-  const setSearchQuery = (query) => {
-    searchQuery.value = query;
-  };
-
-  const setActiveFilter = (filter) => {
-    activeFilter.value = activeFilter.value === filter ? null : filter;
-  };
-
+  const setSearchQuery = (query) => (searchQuery.value = query);
+  const setActiveFilter = (filter) =>
+    (activeFilter.value = activeFilter.value === filter ? null : filter);
   const setSelectedAuthor = (author) => {
-    selectedAuthor.value = author === selectedAuthor.value ? "" : author; 
+    selectedAuthor.value = author === selectedAuthor.value ? "" : author;
     activeFilter.value = null;
   };
-
   const setSelectedYear = (year) => {
     selectedYear.value = year === selectedYear.value ? "" : year;
     activeFilter.value = null;
   };
-
   const setSelectedGenre = (genre) => {
     selectedGenre.value = genre === selectedGenre.value ? "" : genre;
     activeFilter.value = null;
   };
-
   const setSort = (field, order = "asc") => {
     sortBy.value = field;
     sortOrder.value = order;
@@ -188,6 +195,7 @@ export const useTracks = defineStore("tracks", () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
+
   return {
     tracks,
     searchQuery,
@@ -197,6 +205,12 @@ export const useTracks = defineStore("tracks", () => {
     selectedGenre,
     sortBy,
     sortOrder,
+
+
+    isShuffle,
+    shuffledTracks,
+    displayedTracks,
+    toggleShuffle,
 
     filteredTracks,
     authorItems,

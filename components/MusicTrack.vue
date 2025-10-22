@@ -8,7 +8,7 @@
           </svg>
         </div>
         <div class="track__title-text">
-          <a class="track__title-link" href="http://">
+          <a class="track__title-link" href="#" @click.prevent>
             {{ track.name || track.title }}
             <span class="track__title-span">{{ track.subtitle }}</span>
           </a>
@@ -40,7 +40,7 @@
 const { formatDuration } = useTracks();
 const { playTrack } = useAudioPlayer();
 
-defineProps({
+const props = defineProps({
   track: {
     type: Object,
     required: true,
@@ -48,7 +48,7 @@ defineProps({
 });
 
 const playThisTrack = () => {
-  playTrack(track);
+  playTrack(props.track);
 };
 </script>
 

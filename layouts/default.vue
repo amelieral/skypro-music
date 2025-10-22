@@ -8,8 +8,17 @@
         </div>
         <div class="main__sidebar sidebar">
           <div class="sidebar__personal">
-            <p class="sidebar__personal-name">Sergey.Ivanov</p>
-            <div class="sidebar__icon">
+            <p class="sidebar__personal-name">
+              {{
+                userStore.isAuthenticated ? userStore.user.username : "Гость"
+              }}
+            </p>
+            <div
+              class="sidebar__icon"
+              @click="logout"
+              style="cursor: pointer"
+              title="Выйти"
+            >
               <svg>
                 <use xlink:href="/img/icon/sprite.svg#logout" />
               </svg>
@@ -19,7 +28,7 @@
             <div class="sidebar__list">
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/2">
-                  <NuxtImg 
+                  <NuxtImg
                     class="sidebar__img"
                     src="/img/playlist01.png"
                     alt="Плейлист дня"
@@ -54,15 +63,21 @@
 </template>
 
 <script setup>
-useHead({
-  title: "Треки | Skypro.Music",
-  meta: [
-    { name: "description", content: "Все треки в одном месте" },
-    { property: "og:title", content: "Треки | Skypro Music" },
-    { property: "og:site_name", content: "Skypro Music" },
-    { name: "twitter:title", content: "Skypro Music — Треки" },
-  ],
+import { onMounted } from "vue";
+import { useUserStore } from "~/stores/userStore";
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  userStore.restoreUser();
 });
+
+const logout = () => {
+  userStore.clearUser();
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/login";
+};
 </script>
 
 <style scoped>

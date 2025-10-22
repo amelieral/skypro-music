@@ -69,14 +69,11 @@ export const usePlayerStore = defineStore("player", {
       if (this.isShuffle) {
         this.generateShuffledPlaylist();
 
-        if (!this.currentTrack && this.shuffledPlaylist.length > 0) {
-          this.setCurrentTrack(this.shuffledPlaylist[0]);
-        } else {
-          const idx = this.shuffledPlaylist.findIndex(
-            (t) => t.id === this.currentTrack?.id
-          );
-          this.shuffleIndex = idx >= 0 ? idx : 0;
-        }
+        const idx = this.shuffledPlaylist.findIndex(
+          (t) => t.id === this.currentTrack?.id
+        );
+
+        this.shuffleIndex = idx >= 0 ? idx : 0;
       }
     },
 

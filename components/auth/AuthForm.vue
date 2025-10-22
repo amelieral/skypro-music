@@ -56,6 +56,9 @@
 <script setup>
 import { ref } from "vue";
 import { showError, navigateTo } from 'nuxt/app';
+import { useUserStore } from '~/stores/userStore'
+
+const userStore = useUserStore()
 
 const props = defineProps({
   isRegistration: {
@@ -145,7 +148,7 @@ const handleSubmit = async () => {
         if (tokenResponse.status === 200) {
           localStorage.setItem("accessToken", tokenData.access);
           localStorage.setItem("refreshToken", tokenData.refresh);
-          localStorage.setItem("userData", JSON.stringify(loginData));
+          userStore.setUser(loginData);
           await navigateTo("/");
         } else {
           alert("Ошибка получения токена");

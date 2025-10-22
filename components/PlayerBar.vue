@@ -95,6 +95,8 @@
 <script setup>
 import { usePlayerStore } from "~/stores/player";
 
+
+const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 const audioRef = ref(null);
 
@@ -147,6 +149,7 @@ const handlePrev = () => {
 
 const toggleShuffle = () => {
   playerStore.toggleShuffle();
+  tracksStore.toggleShuffle();
 };
 
 const toggleRepeat = () => {

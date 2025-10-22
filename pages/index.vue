@@ -27,7 +27,7 @@
     <Playlist v-else>
       <div class="content__playlist playlist">
         <MusicTrack
-          v-for="track in filteredTracks"
+          v-for="track in tracksStore.displayedTracks"
           :key="track.id"
           :track="track"
         />
@@ -62,7 +62,6 @@ watch(
   { immediate: true }
 );
 
-const filteredTracks = computed(() => tracksStore.filteredTracks);
 const searchQuery = computed({
   get: () => tracksStore.searchQuery,
   set: (value) => tracksStore.setSearchQuery(value),
