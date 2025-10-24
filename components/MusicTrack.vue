@@ -37,17 +37,17 @@
 </template>
 
 <script setup>
+const tracksStore = useTracks();
+const playerStore = usePlayerStore();
 const { formatDuration } = useTracks();
 const { playTrack } = useAudioPlayer();
 
 const props = defineProps({
-  track: {
-    type: Object,
-    required: true,
-  },
+  track: { type: Object, required: true },
 });
 
 const playThisTrack = () => {
+  playerStore.setPlaylist(tracksStore.displayedTracks);
   playTrack(props.track);
 };
 </script>

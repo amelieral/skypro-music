@@ -31,12 +31,20 @@
                 <use xlink:href="/img/icon/sprite.svg#icon-next" />
               </svg>
             </div>
-            <div class="player__btn-repeat _btn-icon" @click="toggleRepeat">
+            <div
+              class="player__btn-repeat _btn-icon"
+              :class="{ _active: playerStore.isRepeat }"
+              @click="toggleRepeat"
+            >
               <svg class="player__btn-repeat-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-repeat" />
               </svg>
             </div>
-            <div class="player__btn-shuffle _btn-icon" @click="toggleShuffle">
+            <div
+              class="player__btn-shuffle _btn-icon"
+              :class="{ _active: tracksStore.isShuffle }"
+              @click="toggleShuffle"
+            >
               <svg class="player__btn-shuffle-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-shuffle" />
               </svg>
@@ -95,7 +103,6 @@
 <script setup>
 import { usePlayerStore } from "~/stores/player";
 
-
 const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 const audioRef = ref(null);
@@ -133,22 +140,17 @@ const handleProgressClick = (event) => {
   seekTo(percentage);
 };
 
-const handleNext = () => {
+const handleNext = async () => {
   const nextTrack = playerStore.playNextTrack();
-  if (nextTrack) {
-    playTrack(nextTrack);
-  }
+  if (nextTrack) await playTrack(nextTrack);
 };
 
-const handlePrev = () => {
+const handlePrev = async () => {
   const prevTrack = playerStore.playPreviousTrack();
-  if (prevTrack) {
-    playTrack(prevTrack);
-  }
+  if (prevTrack) await playTrack(prevTrack);
 };
 
 const toggleShuffle = () => {
-  playerStore.toggleShuffle();
   tracksStore.toggleShuffle();
 };
 
@@ -472,5 +474,20 @@ const toggleRepeat = () => {
   fill: #696969;
   stroke: #ffffff;
   cursor: pointer;
+}
+
+.player__btn-repeat:hover .player__btn-repeat-svg,
+.player__btn-shuffle:hover .player__btn-shuffle-svg {
+  stroke: #a0a0a0; 
+}
+
+.player__btn-repeat._active .player__btn-repeat-svg,
+.player__btn-shuffle._active .player__btn-shuffle-svg {
+  stroke: #ffffff;
+}
+
+.player__btn-repeat-svg,
+.player__btn-shuffle-svg {
+  transition: stroke 0.2s ease;
 }
 </style>

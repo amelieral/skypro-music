@@ -2,6 +2,7 @@
   <nav class="main__nav nav">
 
     <NuxtImg class="nav__logo logo"
+      :placeholder="[4]"
       alt="логотип Skypro Music"  
       src="/img/logo (1).png" 
     />

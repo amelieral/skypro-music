@@ -30,6 +30,7 @@
                 <NuxtLink class="sidebar__link" to="/categories/2">
                   <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist01.png"
                     alt="Плейлист дня"
                   />
@@ -39,6 +40,7 @@
                 <NuxtLink class="sidebar__link" to="/categories/3">
                   <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist02.png"
                     alt="100 танцевальных хитов"
                   />
@@ -48,6 +50,7 @@
                 <NuxtLink class="sidebar__link" to="/categories/4">
                   <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist03.png"
                     alt="Инди-заряд"
                   />
