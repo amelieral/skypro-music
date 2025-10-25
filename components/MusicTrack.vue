@@ -47,7 +47,7 @@ const props = defineProps({
 });
 
 const playThisTrack = () => {
-  playerStore.setPlaylist(tracksStore.displayedTracks);
+  playerStore.setPlaylist(tracksStore.tracks);
   playTrack(props.track);
 };
 </script>

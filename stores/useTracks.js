@@ -12,8 +12,9 @@ export const useTracks = defineStore("tracks", () => {
   const sortBy = ref("name");
   const sortOrder = ref("asc");
 
-  const isShuffle = ref(false);
-  const shuffledTracks = ref([]);
+  const displayedTracks = computed(() => {
+    return filteredTracks.value;
+  });
 
   const filteredTracks = computed(() => {
     let filtered = [...tracks.value];
@@ -104,29 +105,6 @@ export const useTracks = defineStore("tracks", () => {
     return filtered;
   });
 
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
-
-  const toggleShuffle = () => {
-    isShuffle.value = !isShuffle.value;
-
-    if (isShuffle.value) {
-      shuffledTracks.value = shuffleArray(filteredTracks.value);
-    } else {
-      shuffledTracks.value = [];
-    }
-  };
-
-  const displayedTracks = computed(() =>
-    isShuffle.value ? shuffledTracks.value : filteredTracks.value
-  );
-
   const authorItems = computed(() => {
     const items = new Set();
     tracks.value.forEach((track) => {
@@ -164,9 +142,6 @@ export const useTracks = defineStore("tracks", () => {
 
   const setTracks = (newTracks) => {
     tracks.value = newTracks;
-    if (isShuffle.value) {
-      shuffledTracks.value = shuffleArray(filteredTracks.value);
-    }
   };
 
   const setSearchQuery = (query) => (searchQuery.value = query);
@@ -195,7 +170,6 @@ export const useTracks = defineStore("tracks", () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-
   return {
     tracks,
     searchQuery,
@@ -206,13 +180,8 @@ export const useTracks = defineStore("tracks", () => {
     sortBy,
     sortOrder,
 
-
-    isShuffle,
-    shuffledTracks,
-    displayedTracks,
-    toggleShuffle,
-
     filteredTracks,
+    displayedTracks,
     authorItems,
     yearItems,
     genreItems,

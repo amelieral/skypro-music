@@ -42,8 +42,8 @@
             </div>
             <div
               class="player__btn-shuffle _btn-icon"
-              :class="{ _active: tracksStore.isShuffle }"
-              @click="toggleShuffle"
+              :class="{ _active: playerStore.isShuffle }"
+              @click="playerStore.toggleShuffle()"
             >
               <svg class="player__btn-shuffle-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-shuffle" />
@@ -103,7 +103,6 @@
 <script setup>
 import { usePlayerStore } from "~/stores/player";
 
-const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 const audioRef = ref(null);
 
@@ -148,10 +147,6 @@ const handleNext = async () => {
 const handlePrev = async () => {
   const prevTrack = playerStore.playPreviousTrack();
   if (prevTrack) await playTrack(prevTrack);
-};
-
-const toggleShuffle = () => {
-  tracksStore.toggleShuffle();
 };
 
 const toggleRepeat = () => {
@@ -478,7 +473,7 @@ const toggleRepeat = () => {
 
 .player__btn-repeat:hover .player__btn-repeat-svg,
 .player__btn-shuffle:hover .player__btn-shuffle-svg {
-  stroke: #a0a0a0; 
+  stroke: #a0a0a0;
 }
 
 .player__btn-repeat._active .player__btn-repeat-svg,

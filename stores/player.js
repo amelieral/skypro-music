@@ -9,7 +9,16 @@ export const usePlayerStore = defineStore("player", {
     volume: 50,
     audioRef: null,
     isRepeat: false,
+    isShuffle: false,
+    shuffledPlaylist: [],
   }),
+
+  getters: {
+    currentPlaylist: (state) =>
+      state.isShuffle ? state.shuffledPlaylist : state.playlist,
+
+    hasTracks: (state) => state.playlist.length > 0,
+  },
 
   actions: {
     getTrackId(track) {
@@ -21,17 +30,25 @@ export const usePlayerStore = defineStore("player", {
     },
 
     setPlaylist(tracks) {
+      if (!Array.isArray(tracks)) {
+        tracks = tracks ? [tracks] : [];
+      }
+
       this.playlist = tracks;
+
+      if (this.isShuffle) {
+        this.shuffledPlaylist = this.shuffleArray(tracks);
+      }
     },
 
     setProgress(progress) {
-      this.progress = progress;
+      this.progress = Math.max(0, Math.min(100, progress)); 
     },
 
     setVolume(volume) {
-      this.volume = volume;
+      this.volume = Math.max(0, Math.min(100, volume)); 
       if (this.audioRef) {
-        this.audioRef.volume = volume / 100;
+        this.audioRef.volume = this.volume / 100;
       }
     },
 
@@ -41,7 +58,7 @@ export const usePlayerStore = defineStore("player", {
 
     setAudioRef(element) {
       this.audioRef = element;
-      if (this.audioRef) {
+      if (this.audioRef && this.volume !== undefined) {
         this.audioRef.volume = this.volume / 100;
       }
     },
@@ -50,23 +67,40 @@ export const usePlayerStore = defineStore("player", {
       this.isRepeat = !this.isRepeat;
     },
 
+    toggleShuffle() {
+      this.isShuffle = !this.isShuffle;
+
+      if (this.isShuffle) {
+        this.shuffledPlaylist = this.shuffleArray(this.playlist);
+      } else {
+        this.shuffledPlaylist = [];
+      }
+    },
+
+    shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    },
+
     playNextTrack() {
       if (!this.currentTrack || !this.playlist.length) return null;
 
+      const list = this.isShuffle ? this.shuffledPlaylist : this.playlist;
       const currentId = this.getTrackId(this.currentTrack);
-      const index = this.playlist.findIndex(
+      const currentIndex = list.findIndex(
         (t) => String(this.getTrackId(t)) === String(currentId)
       );
 
-      if (index === -1) return null;
+      if (currentIndex === -1) return null;
 
-      let nextIndex = index + 1;
-      if (nextIndex >= this.playlist.length) {
-        if (this.isRepeat) nextIndex = 0;
-        else return null;
-      }
+      const nextIndex = this.getNextTrackIndex(currentIndex, list.length);
+      if (nextIndex === -1) return null;
 
-      const nextTrack = this.playlist[nextIndex];
+      const nextTrack = list[nextIndex];
       this.setCurrentTrack(nextTrack);
       return nextTrack;
     },
@@ -74,22 +108,40 @@ export const usePlayerStore = defineStore("player", {
     playPreviousTrack() {
       if (!this.currentTrack || !this.playlist.length) return null;
 
+      const list = this.isShuffle ? this.shuffledPlaylist : this.playlist;
       const currentId = this.getTrackId(this.currentTrack);
-      const index = this.playlist.findIndex(
+      const currentIndex = list.findIndex(
         (t) => String(this.getTrackId(t)) === String(currentId)
       );
 
-      if (index === -1) return null;
+      if (currentIndex === -1) return null;
 
-      let prevIndex = index - 1;
-      if (prevIndex < 0) {
-        if (this.isRepeat) prevIndex = this.playlist.length - 1;
-        else return null;
-      }
+      const prevIndex = this.getPreviousTrackIndex(currentIndex, list.length);
+      if (prevIndex === -1) return null;
 
-      const prevTrack = this.playlist[prevIndex];
+      const prevTrack = list[prevIndex];
       this.setCurrentTrack(prevTrack);
       return prevTrack;
+    },
+
+    getNextTrackIndex(currentIndex, playlistLength) {
+      let nextIndex = currentIndex + 1;
+
+      if (nextIndex >= playlistLength) {
+        return this.isRepeat ? 0 : -1;
+      }
+
+      return nextIndex;
+    },
+
+    getPreviousTrackIndex(currentIndex, playlistLength) {
+      let prevIndex = currentIndex - 1;
+
+      if (prevIndex < 0) {
+        return this.isRepeat ? playlistLength - 1 : -1;
+      }
+
+      return prevIndex;
     },
   },
 });
