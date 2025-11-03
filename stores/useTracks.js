@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { formatDuration } from '~/utils/formatDuration';
 
 export const useTracks = defineStore("tracks", () => {
   const tracks = ref([]);
@@ -162,12 +163,6 @@ export const useTracks = defineStore("tracks", () => {
   const setSort = (field, order = "asc") => {
     sortBy.value = field;
     sortOrder.value = order;
-  };
-
-  const formatDuration = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return {
