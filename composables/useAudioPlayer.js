@@ -1,4 +1,3 @@
-import { watchEffect } from "vue";
 import { usePlayerStore } from "~/stores/player";
 
 export function useAudioPlayer() {
@@ -55,9 +54,27 @@ export function useAudioPlayer() {
     }
   };
 
-  const handleTrackEnd = () => {
-    playerStore.setPlaying(false);
-    playerStore.setProgress(0);
+  const handleTrackEnd = async () => {
+    if (playerStore.isRepeat) {
+      try {
+        playerStore.audioRef.currentTime = 0;
+        playerStore.setProgress(0);
+        await playerStore.audioRef.play();
+        playerStore.setPlaying(true);
+      } catch (error) {
+        console.error("Ошибка повторного воспроизведения:", error);
+        playerStore.setPlaying(false);
+      }
+    } else {
+      const nextTrack = playerStore.playNextTrack();
+
+      if (nextTrack) {
+        await playTrack(nextTrack);
+      } else {
+        playerStore.setPlaying(false);
+        playerStore.setProgress(0);
+      }
+    }
   };
 
   const handleTimeUpdate = () => {
@@ -81,12 +98,6 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
-
-  watchEffect(() => {
-    if (playerStore.progress >= 100 && playerStore.isPlaying) {
-      playerStore.setPlaying(false);
-    }
-  });
 
   return {
     initPlayer,

@@ -4,10 +4,12 @@
       <div class="modal__block">
         <form class="modal__form-login" @submit.prevent="handleSubmit">
           <NuxtLink to="/">
-            <div class="modal__logo">
-              <img src="/img/logo_modal.png" alt="logo" />
-            </div>
-          </NuxtLink>
+              <NuxtImg class="modal__logo"
+              :placeholder="[5]" 
+              src="/img/logo_modal.png"
+              alt="logo login" 
+              />
+            </NuxtLink>
 
           <input
             v-model="email"
@@ -54,6 +56,9 @@
 <script setup>
 import { ref } from "vue";
 import { showError, navigateTo } from 'nuxt/app';
+import { useUserStore } from '~/stores/userStore'
+
+const userStore = useUserStore()
 
 const props = defineProps({
   isRegistration: {
@@ -143,7 +148,7 @@ const handleSubmit = async () => {
         if (tokenResponse.status === 200) {
           localStorage.setItem("accessToken", tokenData.access);
           localStorage.setItem("refreshToken", tokenData.refresh);
-          localStorage.setItem("userData", JSON.stringify(loginData));
+          userStore.setUser(loginData);
           await navigateTo("/");
         } else {
           alert("Ошибка получения токена");

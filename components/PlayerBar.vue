@@ -10,9 +10,9 @@
       <div class="bar__player-block">
         <div class="bar__player player">
           <div class="player__controls">
-            <div class="player__btn-prev">
+            <div class="player__btn-prev" @click="handlePrev">
               <svg class="player__btn-prev-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-prev"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-prev" />
               </svg>
             </div>
             <div class="player__btn-play _btn" @click="handlePlay">
@@ -26,19 +26,27 @@
                 />
               </svg>
             </div>
-            <div class="player__btn-next">
+            <div class="player__btn-next" @click="handleNext">
               <svg class="player__btn-next-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-next"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-next" />
               </svg>
             </div>
-            <div class="player__btn-repeat _btn-icon">
+            <div
+              class="player__btn-repeat _btn-icon"
+              :class="{ _active: playerStore.isRepeat }"
+              @click="toggleRepeat"
+            >
               <svg class="player__btn-repeat-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-repeat"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-repeat" />
               </svg>
             </div>
-            <div class="player__btn-shuffle _btn-icon">
+            <div
+              class="player__btn-shuffle _btn-icon"
+              :class="{ _active: playerStore.isShuffle }"
+              @click="playerStore.toggleShuffle()"
+            >
               <svg class="player__btn-shuffle-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-shuffle"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-shuffle" />
               </svg>
             </div>
           </div>
@@ -66,7 +74,7 @@
           <div class="volume__content">
             <div class="volume__image">
               <svg class="volume__svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-volume"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-volume" />
               </svg>
             </div>
             <div class="volume__progress _btn">
@@ -78,7 +86,7 @@
                 min="0"
                 max="100"
                 @input="updateVolume"
-              >
+              />
             </div>
           </div>
         </div>
@@ -129,6 +137,20 @@ const handleProgressClick = (event) => {
   const progressBarWidth = progressBar.offsetWidth;
   const percentage = (clickPosition / progressBarWidth) * 100;
   seekTo(percentage);
+};
+
+const handleNext = async () => {
+  const nextTrack = playerStore.playNextTrack();
+  if (nextTrack) await playTrack(nextTrack);
+};
+
+const handlePrev = async () => {
+  const prevTrack = playerStore.playPreviousTrack();
+  if (prevTrack) await playTrack(prevTrack);
+};
+
+const toggleRepeat = () => {
+  playerStore.toggleRepeat();
 };
 </script>
 
@@ -447,5 +469,20 @@ const handleProgressClick = (event) => {
   fill: #696969;
   stroke: #ffffff;
   cursor: pointer;
+}
+
+.player__btn-repeat:hover .player__btn-repeat-svg,
+.player__btn-shuffle:hover .player__btn-shuffle-svg {
+  stroke: #a0a0a0;
+}
+
+.player__btn-repeat._active .player__btn-repeat-svg,
+.player__btn-shuffle._active .player__btn-shuffle-svg {
+  stroke: #ffffff;
+}
+
+.player__btn-repeat-svg,
+.player__btn-shuffle-svg {
+  transition: stroke 0.2s ease;
 }
 </style>

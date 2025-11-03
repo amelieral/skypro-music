@@ -27,9 +27,10 @@
     <Playlist v-else>
       <div class="content__playlist playlist">
         <MusicTrack
-          v-for="track in filteredTracks"
+          v-for="track in displayTracks"
           :key="track.id"
           :track="track"
+          @click="playThisTrack(track)"
         />
       </div>
     </Playlist>
@@ -51,18 +52,49 @@ const tracks = computed(() => response.value?.data || []);
 const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 
+const isFilterActive = computed(() => {
+  return (
+    tracksStore.searchQuery ||
+    tracksStore.selectedAuthor ||
+    tracksStore.selectedYear ||
+    tracksStore.selectedGenre
+  );
+});
+
+const displayTracks = computed(() => {
+  return isFilterActive.value ? tracksStore.filteredTracks : tracksStore.tracks;
+});
+
+const playThisTrack = (track) => {
+  if (!track) return;
+
+  playerStore.setCurrentTrack(track);
+  playerStore.setPlaying(true);
+  playerStore.setPlaylist(displayTracks.value);
+};
+
+watch(isFilterActive, (newValue) => {
+  if (newValue) {
+    playerStore.setPlaylist(tracksStore.filteredTracks);
+  } else {
+    playerStore.setPlaylist(tracksStore.tracks);
+  }
+});
+
 watch(
   tracks,
   (newTracks) => {
     if (newTracks.length > 0) {
       tracksStore.setTracks(newTracks);
-      playerStore.setPlaylist(newTracks);
+
+      if (!playerStore.playlist.length) {
+        playerStore.setPlaylist(newTracks);
+      }
     }
   },
   { immediate: true }
 );
 
-const filteredTracks = computed(() => tracksStore.filteredTracks);
 const searchQuery = computed({
   get: () => tracksStore.searchQuery,
   set: (value) => tracksStore.setSearchQuery(value),

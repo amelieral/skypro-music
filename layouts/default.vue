@@ -8,8 +8,17 @@
         </div>
         <div class="main__sidebar sidebar">
           <div class="sidebar__personal">
-            <p class="sidebar__personal-name">Sergey.Ivanov</p>
-            <div class="sidebar__icon">
+            <p class="sidebar__personal-name">
+              {{
+                userStore.isAuthenticated ? userStore.user.username : "Гость"
+              }}
+            </p>
+            <div
+              class="sidebar__icon"
+              @click="logout"
+              style="cursor: pointer"
+              title="Выйти"
+            >
               <svg>
                 <use xlink:href="/img/icon/sprite.svg#logout" />
               </svg>
@@ -19,8 +28,9 @@
             <div class="sidebar__list">
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/2">
-                  <img
+                  <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist01.png"
                     alt="Плейлист дня"
                   />
@@ -28,8 +38,9 @@
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/3">
-                  <img
+                  <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist02.png"
                     alt="100 танцевальных хитов"
                   />
@@ -37,8 +48,9 @@
               </div>
               <div class="sidebar__item">
                 <NuxtLink class="sidebar__link" to="/categories/4">
-                  <img
+                  <NuxtImg
                     class="sidebar__img"
+                    :placeholder="[4]"
                     src="/img/playlist03.png"
                     alt="Инди-заряд"
                   />
@@ -54,15 +66,21 @@
 </template>
 
 <script setup>
-useHead({
-  title: "Треки | Skypro.Music",
-  meta: [
-    { name: "description", content: "Все треки в одном месте" },
-    { property: "og:title", content: "Треки | Skypro Music" },
-    { property: "og:site_name", content: "Skypro Music" },
-    { name: "twitter:title", content: "Skypro Music — Треки" },
-  ],
+import { onMounted } from "vue";
+import { useUserStore } from "~/stores/userStore";
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  userStore.restoreUser();
 });
+
+const logout = () => {
+  userStore.clearUser();
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/login";
+};
 </script>
 
 <style scoped>
