@@ -30,7 +30,6 @@
           v-for="track in displayTracks"
           :key="track.id"
           :track="track"
-          @click="playThisTrack(track)"
         />
       </div>
     </Playlist>
@@ -47,7 +46,10 @@ const {
   "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
 );
 
-const tracks = computed(() => response.value?.data || []);
+const tracks = computed(() => {
+  const tracksData = response.value?.data || [];
+  return tracksData;
+});
 
 const tracksStore = useTracks();
 const playerStore = usePlayerStore();
@@ -64,14 +66,6 @@ const isFilterActive = computed(() => {
 const displayTracks = computed(() => {
   return isFilterActive.value ? tracksStore.filteredTracks : tracksStore.tracks;
 });
-
-const playThisTrack = (track) => {
-  if (!track) return;
-
-  playerStore.setCurrentTrack(track);
-  playerStore.setPlaying(true);
-  playerStore.setPlaylist(displayTracks.value);
-};
 
 watch(isFilterActive, (newValue) => {
   if (newValue) {

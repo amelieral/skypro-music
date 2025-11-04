@@ -3,9 +3,10 @@
     <div class="playlist__track track">
       <div class="track__title">
         <div class="track__title-image">
-          <svg class="track__title-svg">
+          <svg v-if="!isPlaying" class="track__title-svg">
             <use xlink:href="/img/icon/sprite.svg#icon-note" />
           </svg>
+          <span v-if="isPlaying" class="playing-dot"></span>
         </div>
         <div class="track__title-text">
           <a class="track__title-link" href="#" @click.prevent>
@@ -37,13 +38,22 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
+
+const props = defineProps({
+  track: { type: Object, required: true },
+});
+
 const tracksStore = useTracks();
 const playerStore = usePlayerStore();
 const { formatDuration } = useTracks();
 const { playTrack } = useAudioPlayer();
 
-const props = defineProps({
-  track: { type: Object, required: true },
+const isPlaying = computed(() => {
+  const currentTrackId = playerStore.currentTrack?._id;
+  const thisTrackId = props.track._id;
+
+  return currentTrackId === thisTrackId && playerStore.isPlaying;
 });
 
 const playThisTrack = () => {
@@ -82,6 +92,7 @@ const playThisTrack = () => {
   -ms-flex-pack: center;
   justify-content: center;
   margin-right: 17px;
+  position: relative;
 }
 
 .track__title-svg {
@@ -159,6 +170,7 @@ const playThisTrack = () => {
   width: 100%;
   display: block;
   margin-bottom: 12px;
+  cursor: pointer;
 }
 
 .playlist__track {
@@ -175,5 +187,28 @@ const playThisTrack = () => {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+}
+
+.playing-dot {
+  width: 16px;
+  height: 16px;
+  background-color: #b672ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bubble_out 0.6s ease-in-out infinite both;
+}
+
+@keyframes bubble_out {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
 }
 </style>
