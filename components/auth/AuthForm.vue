@@ -57,6 +57,7 @@
 import { ref } from "vue";
 import { showError, navigateTo } from 'nuxt/app';
 import { useUserStore } from '~/stores/userStore'
+import { validateCredentials } from '~/utils/validation'
 
 const userStore = useUserStore()
 
@@ -74,18 +75,18 @@ const password = ref("");
 const username = ref(""); 
 
 const handleSubmit = async () => {
-  if (!email.value.trim() || !password.value.trim()) {
-    throw showError({
-      statusCode: 400,
-      message: "Заполните email и пароль",
-    });
-  }
+  const error = validateCredentials(
+    email.value,
+    password.value,
+    username.value,
+    props.isRegistration
+  )
 
-  if (props.isRegistration && !username.value.trim()) {
+  if (error) {
     throw showError({
       statusCode: 400,
-      message: "Заполните имя пользователя",
-    });
+      message: error,
+    })
   }
   
   const API_BASE_URL = "https://webdev-music-003b5b991590.herokuapp.com";

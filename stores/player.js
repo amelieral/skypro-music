@@ -42,11 +42,11 @@ export const usePlayerStore = defineStore("player", {
     },
 
     setProgress(progress) {
-      this.progress = Math.max(0, Math.min(100, progress)); 
+      this.progress = Math.max(0, Math.min(100, progress));
     },
 
     setVolume(volume) {
-      this.volume = Math.max(0, Math.min(100, volume)); 
+      this.volume = Math.max(0, Math.min(100, volume));
       if (this.audioRef) {
         this.audioRef.volume = this.volume / 100;
       }
