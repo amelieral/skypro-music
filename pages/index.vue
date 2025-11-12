@@ -30,6 +30,8 @@
           v-for="track in displayTracks"
           :key="track.id"
           :track="track"
+          :liked-tracks="favoriteTracks"
+          @update-favorites="fetchFavoriteTracks"
         />
       </div>
     </Playlist>
@@ -38,17 +40,46 @@
 </template>
 
 <script setup>
+const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
+
 const {
   data: response,
   pending,
   error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+} = await useFetch(`${API_URL}/catalog/track/all/`);
 
-const tracks = computed(() => {
-  const tracksData = response.value?.data || [];
-  return tracksData;
+const tracks = computed(() => response.value?.data || []);
+
+const favoriteTracks = ref([]);
+
+const fetchFavoriteTracks = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) return;
+
+  try {
+    const res = await fetch(`${API_URL}/catalog/track/favorite/all/`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error("Ошибка ответа при загрузке избранных треков:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.success) {
+      favoriteTracks.value = data.data;
+    }
+  } catch (e) {
+    console.error("Ошибка загрузки избранных треков:", e);
+  }
+};
+
+onMounted(() => {
+  fetchFavoriteTracks();
 });
 
 const tracksStore = useTracks();
@@ -146,46 +177,55 @@ useHead({
   background-color: transparent;
   border: none;
   padding: 13px 10px 14px;
+  font-family: "StratosSkyeng", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
-  line-height: 24px;
+  line-height: 18px;
   color: #ffffff;
 }
 
 .search__text::-webkit-input-placeholder {
   background-color: transparent;
   color: #ffffff;
+  font-family: "StratosSkyeng", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  line-height: 18px;
   line-height: 24px;
 }
 
 .search__text:-ms-input-placeholder {
   background-color: transparent;
   color: #ffffff;
+  font-family: "StratosSkyeng", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  line-height: 18px;
   line-height: 24px;
 }
 
 .search__text::-ms-input-placeholder {
   background-color: transparent;
   color: #ffffff;
+  font-family: "StratosSkyeng", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  line-height: 18px;
   line-height: 24px;
 }
 
 .search__text::placeholder {
   background-color: transparent;
   color: #ffffff;
+  font-family: "StratosSkyeng", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  line-height: 18px;
   line-height: 24px;
 }
 </style>

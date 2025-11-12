@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 
 const props = defineProps({
   track: { type: Object, required: true },
@@ -58,8 +58,17 @@ const emit = defineEmits(["update-favorites"]);
 
 const isLiked = ref(false);
 
+const updateLikeStatus = () => {
+  const trackId = props.track._id || props.track.id;
+  isLiked.value = props.likedTracks?.some(
+    (t) => t._id === trackId || t.id === trackId
+  );
+};
+
+watch(() => props.likedTracks, updateLikeStatus, { deep: true });
+
 onMounted(() => {
-  isLiked.value = props.likedTracks?.some((t) => t._id === props.track._id);
+  updateLikeStatus();
 });
 
 const toggleLike = async () => {
@@ -79,7 +88,6 @@ const toggleLike = async () => {
     );
 
     if (res.ok) {
-      isLiked.value = !isLiked.value;
       emit("update-favorites");
     } else {
       console.error("Ошибка лайка:", await res.json());

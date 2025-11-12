@@ -27,7 +27,13 @@
 
     <Playlist v-else>
       <div class="content__playlist playlist">
-        <MusicTrack v-for="track in tracks" :key="track.id" :track="track" />
+        <MusicTrack
+          v-for="track in tracks"
+          :key="track._id"
+          :track="track"
+          :liked-tracks="tracks"
+          @update-favorites="fetchFavoriteTracks"
+        />
       </div>
     </Playlist>
     <footer class="footer" />
@@ -99,6 +105,7 @@ onMounted(() => {
   fetchFavoriteTracks();
 });
 </script>
+
 <style scoped>
 .centerblock__search {
   width: 100%;
