@@ -1,5 +1,7 @@
 <template>
-  <div>
-    <slot />
-  </div>
+  <NuxtLayout>
+    <div class="auth-container">
+      <slot />
+    </div>
+  </NuxtLayout>
 </template>

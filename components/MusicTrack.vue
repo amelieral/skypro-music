@@ -6,7 +6,7 @@
           <svg v-if="!isPlaying" class="track__title-svg">
             <use xlink:href="/img/icon/sprite.svg#icon-note" />
           </svg>
-          <span v-if="isPlaying" class="playing-dot"></span>
+          <span v-else class="playing-dot"></span>
         </div>
         <div class="track__title-text">
           <a class="track__title-link" href="#" @click.prevent>
@@ -16,22 +16,28 @@
         </div>
       </div>
       <div class="track__author">
-        <a class="track__author-link" href="http/">{{
+        <a class="track__author-link" href="#">{{
           track.author || track.artist
         }}</a>
       </div>
       <div class="track__album">
-        <a class="track__album-link" href="http/">{{ track.album }}</a>
+        <a class="track__album-link" href="#">{{ track.album }}</a>
       </div>
       <div class="track__time">
-        <svg class="track__time-svg">
+        <svg
+          class="track__time-svg like-btn"
+          :class="{ liked: isLiked }"
+          @click.stop="toggleLike"
+        >
           <use xlink:href="/img/icon/sprite.svg#icon-like" />
         </svg>
-        <span class="track__time-text">{{
-          track.duration_in_seconds
-            ? formatDuration(track.duration_in_seconds)
-            : track.duration
-        }}</span>
+        <span class="track__time-text">
+          {{
+            track.duration_in_seconds
+              ? formatDuration(track.duration_in_seconds)
+              : track.duration
+          }}
+        </span>
       </div>
     </div>
   </div>
@@ -39,10 +45,44 @@
 
 <script setup>
 import { computed } from "vue";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const props = defineProps({
   track: { type: Object, required: true },
 });
+
+const favoritesStore = useFavoritesStore();
+
+const isLiked = computed(() => {
+  const trackId = props.track._id || props.track.id;
+  return favoritesStore.isTrackLiked(trackId);
+});
+
+const toggleLike = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) return;
+
+  const method = isLiked.value ? "DELETE" : "POST";
+  const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
+
+  try {
+    const res = await fetch(
+      `${API_URL}/catalog/track/${props.track._id}/favorite/`,
+      {
+        method,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+
+    if (res.ok) {
+      favoritesStore.toggleFavorite(props.track, !isLiked.value);
+    } else {
+      console.error("Ошибка лайка:", await res.json());
+    }
+  } catch (err) {
+    console.error("Ошибка сети:", err);
+  }
+};
 
 const tracksStore = useTracks();
 const playerStore = usePlayerStore();
@@ -50,10 +90,9 @@ const { formatDuration } = useTracks();
 const { playTrack } = useAudioPlayer();
 
 const isPlaying = computed(() => {
-  const currentTrackId = playerStore.currentTrack?._id;
-  const thisTrackId = props.track._id;
-
-  return currentTrackId === thisTrackId && playerStore.isPlaying;
+  return (
+    playerStore.currentTrack?._id === props.track._id && playerStore.isPlaying
+  );
 });
 
 const playThisTrack = () => {
@@ -63,6 +102,21 @@ const playThisTrack = () => {
 </script>
 
 <style scoped>
+.like-btn {
+  cursor: pointer;
+  stroke: #696969;
+  fill: transparent;
+  transition: all 0.2s ease;
+}
+
+.like-btn:hover {
+  transform: scale(1.1);
+}
+
+.like-btn.liked {
+  stroke: #b672ff;
+  fill: #b672ff;
+}
 .track__title {
   display: -webkit-box;
   display: -ms-flexbox;

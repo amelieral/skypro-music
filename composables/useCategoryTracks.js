@@ -10,14 +10,15 @@ export const useCategoryTracks = () => {
 
   const fetchTracksByIds = async (ids) => {
     try {
-      const trackPromises = ids.map((id) =>
-        fetch(`${API_URL}/catalog/track/${id}`).then((res) => res.json())
-      );
-      const tracksResults = await Promise.all(trackPromises);
+      const response = await fetch(`${API_URL}/catalog/track/all/`);
+      const result = await response.json();
 
-      tracks.value = tracksResults
-        .filter((res) => res.success && res.data)
-        .map((res) => res.data);
+      if (result.success && Array.isArray(result.data)) {
+        tracks.value = result.data.filter((track) => ids.includes(track._id));
+      } else {
+        error.value = "Не удалось получить треки";
+        tracks.value = [];
+      }
     } catch (e) {
       error.value = e.message || "Ошибка загрузки треков";
       tracks.value = [];
@@ -29,12 +30,14 @@ export const useCategoryTracks = () => {
     error.value = null;
 
     try {
-      const response = await fetch(`${API_URL}/catalog/selection/${id}`);
+      const response = await fetch(`${API_URL}/catalog/selection/${id}/`);
       const result = await response.json();
+      console.log("SELECTION DATA:", result);
+      console.log("SELECTION ITEMS:", result.data.items);
 
       if (result.success && result.data) {
         categoryName.value = result.data.name || "Без названия";
-        const trackIds = result.data.items || [];
+        const trackIds = result.data.items || []; 
         await fetchTracksByIds(trackIds);
       } else {
         error.value = "Категория не найдена";

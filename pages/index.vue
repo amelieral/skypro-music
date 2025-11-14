@@ -38,17 +38,48 @@
 </template>
 
 <script setup>
+import { useFavoritesStore } from "~/stores/favorites";
+
+const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
+
 const {
   data: response,
   pending,
   error,
-} = await useFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-);
+} = await useFetch(`${API_URL}/catalog/track/all/`);
 
-const tracks = computed(() => {
-  const tracksData = response.value?.data || [];
-  return tracksData;
+const tracks = computed(() => response.value?.data || []);
+
+const favoritesStore = useFavoritesStore();
+
+const fetchFavoriteTracks = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) return;
+
+  try {
+    const res = await fetch(`${API_URL}/catalog/track/favorite/all/`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error("Ошибка ответа при загрузке избранных треков:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.success) {
+      favoritesStore.setFavorites(data.data);
+    }
+  } catch (e) {
+    console.error("Ошибка загрузки избранных треков:", e);
+  }
+};
+
+onMounted(() => {
+  fetchFavoriteTracks();
 });
 
 const tracksStore = useTracks();
@@ -105,87 +136,96 @@ useHead({
 });
 </script>
 
-<style scoped>
-.centerblock__search {
-  width: 100%;
-  border-bottom: 1px solid #4e4e4e;
-  margin-bottom: 51px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
+  <style scoped>
+    .centerblock__search {
+      width: 100%;
+      border-bottom: 1px solid #4e4e4e;
+      margin-bottom: 51px;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
 
-.centerblock__h2 {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 64px;
-  line-height: 72px;
-  letter-spacing: -0.8px;
-  margin-bottom: 45px;
-}
+    .centerblock__h2 {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 64px;
+      line-height: 72px;
+      letter-spacing: -0.8px;
+      margin-bottom: 45px;
+    }
 
-.search__svg {
-  width: 17px;
-  height: 17px;
-  margin-right: 5px;
-  stroke: #ffffff;
-  fill: transparent;
-}
+    .search__svg {
+      width: 17px;
+      height: 17px;
+      margin-right: 5px;
+      stroke: #ffffff;
+      fill: transparent;
+    }
 
-.search__text {
-  -webkit-box-flex: 100;
-  -ms-flex-positive: 100;
-  flex-grow: 100;
-  background-color: transparent;
-  border: none;
-  padding: 13px 10px 14px;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: #ffffff;
-}
+    .search__text {
+      -webkit-box-flex: 100;
+      -ms-flex-positive: 100;
+      flex-grow: 100;
+      background-color: transparent;
+      border: none;
+      padding: 13px 10px 14px;
+      font-family: "StratosSkyeng", sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      color: #ffffff;
+    }
 
-.search__text::-webkit-input-placeholder {
-  background-color: transparent;
-  color: #ffffff;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-}
+    .search__text::-webkit-input-placeholder {
+      background-color: transparent;
+      color: #ffffff;
+      font-family: "StratosSkyeng", sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      line-height: 24px;
+    }
 
-.search__text:-ms-input-placeholder {
-  background-color: transparent;
-  color: #ffffff;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-}
+    .search__text:-ms-input-placeholder {
+      background-color: transparent;
+      color: #ffffff;
+      font-family: "StratosSkyeng", sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      line-height: 24px;
+    }
 
-.search__text::-ms-input-placeholder {
-  background-color: transparent;
-  color: #ffffff;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-}
+    .search__text::-ms-input-placeholder {
+      background-color: transparent;
+      color: #ffffff;
+      font-family: "StratosSkyeng", sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      line-height: 24px;
+    }
 
-.search__text::placeholder {
-  background-color: transparent;
-  color: #ffffff;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-}
-</style>
+    .search__text::placeholder {
+      background-color: transparent;
+      color: #ffffff;
+      font-family: "StratosSkyeng", sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      line-height: 24px;
+    }
+  </style>
