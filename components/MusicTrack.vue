@@ -15,17 +15,14 @@
           </a>
         </div>
       </div>
-
       <div class="track__author">
         <a class="track__author-link" href="#">{{
           track.author || track.artist
         }}</a>
       </div>
-
       <div class="track__album">
         <a class="track__album-link" href="#">{{ track.album }}</a>
       </div>
-
       <div class="track__time">
         <svg
           class="track__time-svg like-btn"
@@ -47,28 +44,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { computed } from "vue";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const props = defineProps({
   track: { type: Object, required: true },
-  likedTracks: { type: Array, default: () => [] },
 });
 
-const emit = defineEmits(["update-favorites"]);
+const favoritesStore = useFavoritesStore();
 
-const isLiked = ref(false);
-
-const updateLikeStatus = () => {
+const isLiked = computed(() => {
   const trackId = props.track._id || props.track.id;
-  isLiked.value = props.likedTracks?.some(
-    (t) => t._id === trackId || t.id === trackId
-  );
-};
-
-watch(() => props.likedTracks, updateLikeStatus, { deep: true });
-
-onMounted(() => {
-  updateLikeStatus();
+  return favoritesStore.isTrackLiked(trackId);
 });
 
 const toggleLike = async () => {
@@ -88,7 +75,7 @@ const toggleLike = async () => {
     );
 
     if (res.ok) {
-      emit("update-favorites");
+      favoritesStore.toggleFavorite(props.track, !isLiked.value);
     } else {
       console.error("Ошибка лайка:", await res.json());
     }

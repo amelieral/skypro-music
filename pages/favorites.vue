@@ -27,13 +27,7 @@
 
     <Playlist v-else>
       <div class="content__playlist playlist">
-        <MusicTrack
-          v-for="track in tracks"
-          :key="track._id"
-          :track="track"
-          :liked-tracks="tracks"
-          @update-favorites="fetchFavoriteTracks"
-        />
+        <MusicTrack v-for="track in tracks" :key="track._id" :track="track" />
       </div>
     </Playlist>
     <footer class="footer" />
@@ -41,24 +35,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
 
-const tracks = ref([]);
 const loading = ref(false);
 const searchQuery = ref("");
 const error = ref(null);
 
-useHead({
-  title: "Мои треки | Skypro.Music",
-  meta: [
-    { name: "description", content: "Ваши любимые треки в одном месте" },
-    { property: "og:title", content: "Мои треки | Skypro Music" },
-    { property: "og:site_name", content: "Skypro Music" },
-    { name: "twitter:title", content: "Skypro Music — Мои треки" },
-  ],
-});
+const favoritesStore = useFavoritesStore();
+
+const tracks = computed(() => favoritesStore.favoriteTracks);
 
 const fetchFavoriteTracks = async () => {
   loading.value = true;
@@ -80,7 +67,7 @@ const fetchFavoriteTracks = async () => {
 
     if (response.status === 401) {
       error.value = "Пожалуйста, войдите снова.";
-      tracks.value = [];
+      favoritesStore.setFavorites([]);
       loading.value = false;
       return;
     }
@@ -88,14 +75,14 @@ const fetchFavoriteTracks = async () => {
     const data = await response.json();
 
     if (data.success) {
-      tracks.value = data.data;
+      favoritesStore.setFavorites(data.data);
     } else {
       error.value = "Ошибка при загрузке избранных треков";
-      tracks.value = [];
+      favoritesStore.setFavorites([]);
     }
   } catch (e) {
     error.value = e.message || "Ошибка сети";
-    tracks.value = [];
+    favoritesStore.setFavorites([]);
   } finally {
     loading.value = false;
   }
@@ -103,6 +90,16 @@ const fetchFavoriteTracks = async () => {
 
 onMounted(() => {
   fetchFavoriteTracks();
+});
+
+useHead({
+  title: "Мои треки | Skypro.Music",
+  meta: [
+    { name: "description", content: "Ваши любимые треки в одном месте" },
+    { property: "og:title", content: "Мои треки | Skypro Music" },
+    { property: "og:site_name", content: "Skypro Music" },
+    { name: "twitter:title", content: "Skypro Music — Мои треки" },
+  ],
 });
 </script>
 

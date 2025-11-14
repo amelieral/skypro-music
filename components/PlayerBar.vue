@@ -111,45 +111,18 @@
 
 <script setup>
 import { usePlayerStore } from "~/stores/player";
-import { ref, computed, onMounted, watch } from "vue";
+import { useFavoritesStore } from "~/stores/favorites";
+import { ref, computed, onMounted } from "vue";
 
 const playerStore = usePlayerStore();
+const favoritesStore = useFavoritesStore();
 const audioRef = ref(null);
-const favoriteTracks = ref([]);
 
-const isCurrentTrackLiked = computed(() => {
+const isLiked = computed(() => {
   if (!playerStore.currentTrack) return false;
   const trackId = playerStore.currentTrack._id || playerStore.currentTrack.id;
-  return favoriteTracks.value.some(
-    (track) => track._id === trackId || track.id === trackId
-  );
+  return favoritesStore.isTrackLiked(trackId);
 });
-
-const fetchFavoriteTracks = async () => {
-  const accessToken = localStorage.getItem("accessToken");
-  if (!accessToken) return;
-
-  try {
-    const response = await fetch(
-      "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/favorite/all/",
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        favoriteTracks.value = data.data;
-      }
-    }
-  } catch (error) {
-    console.error("Ошибка загрузки избранных треков:", error);
-  }
-};
-
-const emit = defineEmits(['trackLiked']);
-
 
 const toggleLike = async () => {
   if (!playerStore.currentTrack) return;
@@ -158,7 +131,7 @@ const toggleLike = async () => {
   if (!accessToken) return;
 
   const trackId = playerStore.currentTrack._id || playerStore.currentTrack.id;
-  const method = isCurrentTrackLiked.value ? "DELETE" : "POST";
+  const method = isLiked.value ? "DELETE" : "POST";
 
   try {
     const res = await fetch(
@@ -170,24 +143,12 @@ const toggleLike = async () => {
     );
 
     if (res.ok) {
-      await fetchFavoriteTracks(); 
+      favoritesStore.toggleFavorite(playerStore.currentTrack, !isLiked.value);
     }
   } catch (err) {
     console.error("Ошибка:", err);
   }
-  emit('trackLiked', {
-    track: playerStore.currentTrack,
-    liked: !isLiked.value
-  });
 };
-
-const isLiked = computed(() => {
-  if (!playerStore.currentTrack) return false;
-  const trackId = playerStore.currentTrack._id || playerStore.currentTrack.id;
-  return favoriteTracks.value.some(
-    (track) => track._id === trackId || track.id === trackId
-  );
-});
 
 const {
   playTrack,
@@ -202,8 +163,6 @@ const {
 onMounted(() => {
   initPlayer(audioRef.value);
 });
-
-watch(() => playerStore.currentTrack, fetchFavoriteTracks);
 
 const handlePlay = () => {
   if (!playerStore.currentTrack && playerStore.playlist.length > 0) {
