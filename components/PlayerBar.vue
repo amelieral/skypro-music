@@ -67,6 +67,15 @@
                   playerStore.currentTrack?.album || ""
                 }}</a>
               </div>
+              <div class="track-play__like" v-if="playerStore.currentTrack">
+                <svg
+                  class="track-play__like-svg"
+                  :class="{ liked: isLiked }"
+                  @click="toggleLike"
+                >
+                  <use xlink:href="/img/icon/sprite.svg#icon-like" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -102,9 +111,44 @@
 
 <script setup>
 import { usePlayerStore } from "~/stores/player";
+import { useFavoritesStore } from "~/stores/favorites";
+import { ref, computed, onMounted } from "vue";
 
 const playerStore = usePlayerStore();
+const favoritesStore = useFavoritesStore();
 const audioRef = ref(null);
+
+const isLiked = computed(() => {
+  if (!playerStore.currentTrack) return false;
+  const trackId = playerStore.currentTrack._id || playerStore.currentTrack.id;
+  return favoritesStore.isTrackLiked(trackId);
+});
+
+const toggleLike = async () => {
+  if (!playerStore.currentTrack) return;
+
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) return;
+
+  const trackId = playerStore.currentTrack._id || playerStore.currentTrack.id;
+  const method = isLiked.value ? "DELETE" : "POST";
+
+  try {
+    const res = await fetch(
+      `https://webdev-music-003b5b991590.herokuapp.com/catalog/track/${trackId}/favorite/`,
+      {
+        method,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+
+    if (res.ok) {
+      favoritesStore.toggleFavorite(playerStore.currentTrack, !isLiked.value);
+    }
+  } catch (err) {
+    console.error("Ошибка:", err);
+  }
+};
 
 const {
   playTrack,
@@ -155,6 +199,37 @@ const toggleRepeat = () => {
 </script>
 
 <style scoped>
+.track-play__contain {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  width: auto;
+}
+
+.track-play__like {
+  padding: 5px;
+  margin-left: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.track-play__like-svg {
+  width: 14px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+  transition: all 0.2s ease;
+}
+
+.track-play__like-svg:hover {
+  transform: scale(1.1);
+}
+
+.track-play__like-svg.liked {
+  stroke: #b672ff;
+  fill: #b672ff;
+}
+
 .player__btn-prev,
 .player__btn-play,
 .player__btn-next,
@@ -238,15 +313,9 @@ const toggleRepeat = () => {
 }
 
 .track-play__contain {
-  width: auto;
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: auto 1fr;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "image author" "image album";
-  -webkit-box-align: center;
-  -ms-flex-align: center;
+  display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .player__controls {

@@ -16,20 +16,36 @@
   </div>
 </template>
 
-<script setup>
-
-</script>
+<script setup></script>
 
 <style scoped>
-.content__playlist {
-  display: -webkit-box;
-  display: -ms-flexbox;
+.centerblock__content {
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content__title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.content__playlist {
+  display: flex;
   flex-direction: column;
   overflow-y: auto;
+  flex-grow: 1;
+  max-height: 60vh;
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+.content__playlist::-webkit-scrollbar {
+  display: none;
 }
 
 .playlist-title__col {
@@ -64,22 +80,5 @@
 .col04 {
   width: 60px;
   text-align: end;
-}
-
-.content__title {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  margin-bottom: 24px;
 }
 </style>
